@@ -1,0 +1,131 @@
+import { PUBLIC_PARTYKIT_HOST } from '$env/static/public';
+import PartySocket from 'partysocket';
+import {
+	ActionMessage,
+	createDefaultState,
+	GameStateSchema,
+	MessageType,
+	ServerMessageSchema,
+	State,
+	type ClientMessage,
+	type GameState,
+	type TriviaData,
+} from '$lib/shared/schema';
+
+type GameData = {
+	state: GameState;
+	socket?: PartySocket;
+	readonly isAdmin: boolean;
+	adminSecret?: string;
+};
+
+export const gameData: GameData = $state({
+	state: createDefaultState(),
+	socket: undefined as PartySocket | undefined,
+	get isAdmin(): boolean {
+		return !!(this.socket && this.state?.adminId && this.socket.id === this.state.adminId);
+	},
+	adminSecret: undefined as string | undefined,
+});
+
+export function initGame(
+	roomId: string,
+	onstatechange: (oldstate: State, newState: State) => void
+) {
+	gameData.socket = new PartySocket({
+		host: PUBLIC_PARTYKIT_HOST,
+		room: roomId,
+	});
+
+	gameData.socket.addEventListener('message', (event) => {
+		try {
+			const rawData = JSON.parse(event.data);
+			const message = ServerMessageSchema.parse(rawData);
+
+			switch (message.type) {
+				case MessageType.SYNC:
+					// Fire callback if state is different after sync
+					if (gameData.state.state !== message.gameState.state) {
+						onstatechange(gameData.state.state, message.gameState.state);
+					}
+
+					gameData.state = message.gameState;
+					break;
+
+				case MessageType.PLAYERUPDATE:
+					gameData.state.playerCount = message.playerCount;
+					gameData.state.players = message.players;
+					break;
+
+				case MessageType.ADMINCHANGE:
+					gameData.state.adminId = message.adminId;
+					break;
+
+				case MessageType.ADMINSECRET: {
+					gameData.adminSecret = message.secret;
+					break;
+				}
+			}
+		} catch (error) {
+			console.error('Received wrong message from Server:', error);
+			return;
+		}
+	});
+}
+
+export async function doesRoomExist(roomId: string): Promise<boolean> {
+	const resp = await fetch(`${PUBLIC_PARTYKIT_HOST}/parties/api/roomExists`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ roomId: roomId }),
+	});
+
+	return resp.ok;
+}
+
+export function increaseCounter() {
+	const obj: ClientMessage = {
+		action: ActionMessage.INCREASE_COUNTER,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function reset() {
+	const obj: ClientMessage = {
+		action: ActionMessage.RESET,
+		adminSecret: gameData.adminSecret ?? '',
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function startGame(triviaData: TriviaData) {
+	const obj: ClientMessage = {
+		action: ActionMessage.START_GAME,
+		adminSecret: gameData.adminSecret ?? '',
+		triviaData,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function backToLobby() {
+	const obj: ClientMessage = {
+		action: ActionMessage.BACK_TO_LOBBY,
+		adminSecret: gameData.adminSecret ?? '',
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function changeName(name: string) {
+	const obj: ClientMessage = {
+		action: ActionMessage.CHANGE_NAME,
+		name,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
