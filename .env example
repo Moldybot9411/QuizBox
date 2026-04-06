@@ -1,0 +1,2 @@
+PUBLIC_PARTYKIT_HOST=http://127.0.0.1:1999
+SECRET_TOKEN=Some Token you want. Choose whatever for development purposes.

@@ -1,42 +1,24 @@
-# sv
+# Power Trivia
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## Running the project locally
 
-## Creating a project
+- Copy `.env.example` and rename it to `.env`
+- Fill out the fields in the .env file
 
-If you're seeing this, you've probably already done this step. Congrats!
+Initialize Packages with
 
-```sh
-# create a new project
-npx sv create my-app
+```bash
+npm i
 ```
 
-To recreate this project with the same configuration:
+Start the dev server with
 
-```sh
-# recreate this project
-npx sv@0.13.0 create --template minimal --types ts --add prettier tailwindcss="plugins:typography" --install npm ./
+```bash
+npx partykit dev
 ```
 
-## Developing
+Start the frontend server with
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
