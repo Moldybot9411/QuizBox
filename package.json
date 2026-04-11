@@ -31,6 +31,7 @@
 	"dependencies": {
 		"@lucide/svelte": "^1.7.0",
 		"@scaleway/random-name": "^5.1.4",
+		"html-entities": "^2.6.0",
 		"nanoid": "^5.1.7",
 		"partykit": "^0.0.115",
 		"partysocket": "^1.1.16",

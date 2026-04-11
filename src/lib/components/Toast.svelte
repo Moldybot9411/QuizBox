@@ -26,7 +26,7 @@
 		<div
 			transition:slide
 			class={[
-				'flex items-center justify-center gap-4 rounded-md p-4 text-balance text-gray-800 shadow-lg transition-all',
+				'flex items-center justify-between gap-4 rounded-md p-4 text-balance text-gray-800 shadow-lg transition-all',
 				toast.type === 'success' && 'bg-green-200',
 				toast.type === 'error' && 'bg-red-200',
 				toast.type === 'info' && 'bg-blue-200',

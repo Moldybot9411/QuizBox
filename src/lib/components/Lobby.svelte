@@ -3,25 +3,16 @@
 	import { onMount } from 'svelte';
 	import Card from './Card.svelte';
 	import { TriviaSchema, type TriviaData } from '$lib/shared/schema';
-	import {
-		CircleAlert,
-		Clipboard,
-		Cog,
-		Crown,
-		Link,
-		LoaderCircle,
-		Pen,
-		PersonStanding,
-		User,
-	} from '@lucide/svelte';
+	import { CircleAlert, Clipboard, Link, LoaderCircle, User } from '@lucide/svelte';
 	import PlayerCard from './PlayerCard.svelte';
 	import { addToast } from './Toast.svelte';
+	import Button from './Button.svelte';
 
 	type Props = {
 		roomId: string;
 	};
 
-	let { roomId } = $props();
+	let { roomId }: Props = $props();
 
 	const maxRounds = 25;
 
@@ -92,7 +83,10 @@
 			const resp = await fetch(opentdbUrl);
 
 			if (!resp.ok) {
-				errorMessage = 'Failed to fetch questions. Try again in a few seconds.';
+				addToast({
+					message: 'Failed to fetch questions. Try again in a few seconds.',
+					type: 'error',
+				});
 				return;
 			}
 
@@ -100,37 +94,66 @@
 			const parsedData = TriviaSchema.parse(rawData);
 
 			if (parsedData.response_code === 1) {
-				errorMessage = "There aren't enough questions available for the selected criteria.";
+				addToast({
+					message: "There aren't enough questions available for the selected criteria.",
+					type: 'error',
+				});
 				return;
 			}
 
 			if (parsedData.response_code !== 0) {
-				errorMessage =
-					'There was an error retrieving the questions. Try again later or choose different criteria.';
+				addToast({
+					message:
+						'There was an error retrieving the questions. Try again later or choose different criteria.',
+					type: 'error',
+				});
 				return;
 			}
 
 			return parsedData;
 		} catch (error) {
-			errorMessage = 'Something went seriously wrong. Please contact the developer.';
+			addToast({
+				message: 'Something went seriously wrong. Please contact the developer.',
+				type: 'error',
+			});
 			console.error('Error fetching questions:', error);
 		}
 	}
 
 	function copyUrl() {
-		navigator.clipboard.writeText(window.location.href);
-		addToast({
-			message: 'Room URL copied to clipboard!',
-			type: 'success',
-		});
+		navigator.clipboard
+			.writeText(window.location.href)
+			.then(() => {
+				addToast({
+					message: 'Room URL copied to clipboard!',
+					type: 'success',
+				});
+			})
+			.catch((err) => {
+				addToast({
+					message: 'Failed to copy URL. Please try manually copying the address bar.',
+					type: 'error',
+				});
+				console.error('Could not copy text: ', err);
+			});
 	}
 
 	function copyCode() {
-		navigator.clipboard.writeText(roomId);
-		addToast({
-			message: 'Room ID copied to clipboard!',
-			type: 'success',
-		});
+		navigator.clipboard
+			.writeText(roomId)
+			.then(() => {
+				addToast({
+					message: 'Room ID copied to clipboard!',
+					type: 'success',
+				});
+			})
+			.catch((err) => {
+				addToast({
+					message: 'Failed to copy Room ID. Please try manually copying the address bar.',
+					type: 'error',
+				});
+				console.error('Could not copy text: ', err);
+			});
 	}
 </script>
 
@@ -140,21 +163,19 @@
 			{roomId}
 		</Card>
 		<div class="my-auto flex gap-2">
-			<button
+			<Button
 				onclick={copyUrl}
 				aria-label="Copy Room Link"
 				title="Copy Room Link"
-				class=" size-fit cursor-pointer rounded-md border border-gray-300 bg-gray-200 p-2 hover:bg-gray-300">
-				<Link size={16} />
-			</button>
+				variant="secondary"
+				icon={Link} />
 
-			<button
+			<Button
 				onclick={copyCode}
 				aria-label="Copy Room ID"
 				title="Copy Room ID"
-				class="size-fit cursor-pointer rounded-md border border-gray-300 bg-gray-200 p-2 hover:bg-gray-300">
-				<Clipboard size={16} />
-			</button>
+				variant="secondary"
+				icon={Clipboard} />
 		</div>
 	</Card>
 </div>
@@ -172,20 +193,22 @@
 </Card>
 
 {#if gameData.isAdmin}
-	<Card class="mb-4 flex flex-col gap-4">
-		<label>
-			Number of Rounds
+	<Card class="mb-4 flex flex-col gap-6">
+		<label class="flex max-w-100 flex-col gap-1">
+			<span class="text-lg font-bold text-text-muted"> Number of Rounds </span>
+
 			<input
 				bind:value={numRounds}
 				type="number"
-				class="ml-2 rounded-md border border-gray-300 bg-gray-100 p-2 font-bold text-gray-900" />
+				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text" />
 		</label>
 
-		<label>
-			Category
+		<label class="flex max-w-100 flex-col gap-1">
+			<span class="text-lg font-bold text-text-muted"> Category </span>
+
 			<select
 				bind:value={category}
-				class="ml-2 rounded-md border border-gray-300 bg-gray-100 p-2 font-bold text-gray-900">
+				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
 				<option value="any">Any Category</option>
 				{#each categories as category}
 					<option value={category.id}>{category.name}</option>
@@ -193,11 +216,12 @@
 			</select>
 		</label>
 
-		<label>
-			Difficulty
+		<label class="flex max-w-100 flex-col gap-1">
+			<span class="text-lg font-bold text-text-muted"> Difficulty </span>
+
 			<select
 				bind:value={difficulty}
-				class="ml-2 rounded-md border border-gray-300 bg-gray-100 p-2 font-bold text-gray-900">
+				class="ounded-md border border-border bg-surface-light p-2 font-bold text-text">
 				<option value="any">Any Difficulty</option>
 				<option value="easy">Easy</option>
 				<option value="medium">Medium</option>
@@ -205,11 +229,12 @@
 			</select>
 		</label>
 
-		<label>
-			Question Type
+		<label class="flex max-w-100 flex-col gap-1">
+			<span class="text-lg font-bold text-text-muted"> Question Type </span>
+
 			<select
 				bind:value={questionType}
-				class="ml-2 rounded-md border border-gray-300 bg-gray-100 p-2 font-bold text-gray-900">
+				class="rounded-md border border-border bg-surface-light p-2 text-text">
 				<option value="any">Any Type</option>
 				<option value="boolean">True / False</option>
 				<option value="multiple">Multiple Choice</option>
@@ -217,15 +242,7 @@
 		</label>
 	</Card>
 	<div class="flex w-full flex-col items-center gap-2">
-		{#if errorMessage}
-			<div
-				class="flex gap-2 rounded-md border border-red-400 bg-red-100 px-4 py-3 text-red-700"
-				role="alert">
-				<CircleAlert />
-				{errorMessage}
-			</div>
-		{/if}
-		<button
+		<Button
 			onclick={async () => {
 				isLoading = true;
 				triviaData = await loadQuestions();
@@ -235,14 +252,26 @@
 					startGame(triviaData);
 				}
 			}}
-			disabled={isLoading || gameData.state.playerCount < 2}
-			class="flex w-fit cursor-pointer items-center gap-4 rounded-md bg-indigo-400 px-4 py-2 text-xl font-bold text-white hover:bg-indigo-500 disabled:bg-indigo-300">
+			disabled={isLoading || gameData.state.playerCount < 2}>
 			{#if isLoading}
 				<LoaderCircle class="animate-spin" size={24} />
 			{/if}
 			Start Game
-		</button>
+		</Button>
 	</div>
 {:else}
-	<div>Waiting for the admin to start...</div>
+	<div class="text-text-muted">Waiting for the admin to start ...</div>
 {/if}
+
+<style>
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		/* display: none; <- Crashes Chrome on hover */
+		-webkit-appearance: none;
+		margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+	}
+
+	input[type='number'] {
+		-moz-appearance: textfield; /* Firefox */
+	}
+</style>

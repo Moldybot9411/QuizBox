@@ -5,6 +5,7 @@
 	import { Check, Crown, Pen, User, X } from '@lucide/svelte';
 	import { error } from '@sveltejs/kit';
 	import { addToast } from './Toast.svelte';
+	import Button from './Button.svelte';
 
 	type Props = {
 		name: string;
@@ -56,15 +57,15 @@
 <Card
 	elevation="inset"
 	title={id === gameData.socket?.id ? 'This is you' : undefined}
-	class="flex flex-1 basis-sm items-center gap-2 text-xl font-bold">
+	class="flex min-h-17 flex-1 basis-sm items-center gap-2 text-xl font-bold">
 	{#if id === gameData.state.adminId}
-		<Crown color="orange" />
+		<Crown color="orange" class="min-w-6" />
 	{/if}
 
 	{#if isEditing}
 		<input
 			aria-label="Enter new Username"
-			class="outline-2"
+			class="elevation-inset w-full rounded-md border border-gray-300 px-4 py-0.5 outline-none"
 			bind:this={inputFieldRef}
 			type="text"
 			value={name}
@@ -90,17 +91,16 @@
 	{#if id === gameData.socket?.id}
 		<span class="ml-auto flex items-center gap-2">
 			{#if isEditing}
-				<button
+				<Button
 					onclick={() => {
 						inputFieldRef!.value = name;
 						isEditing = false;
 					}}
 					aria-label="Edit Username"
-					class="cursor-pointer rounded-md border border-gray-300 bg-gray-200 p-2 hover:bg-gray-300">
-					<X size={16} />
-				</button>
+					variant="tertiary"
+					icon={X} />
 			{/if}
-			<button
+			<Button
 				onclick={() => {
 					isEditing = !isEditing;
 
@@ -121,13 +121,8 @@
 					}
 				}}
 				aria-label="Edit Username"
-				class="cursor-pointer rounded-md border border-gray-300 bg-gray-200 p-2 hover:bg-gray-300">
-				{#if isEditing}
-					<Check size={16} />
-				{:else}
-					<Pen size={16} />
-				{/if}
-			</button>
+				variant={isEditing ? 'primary' : 'tertiary'}
+				icon={isEditing ? Check : Pen} />
 			<User />
 		</span>
 	{/if}

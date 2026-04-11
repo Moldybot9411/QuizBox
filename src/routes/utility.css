@@ -1,0 +1,23 @@
+@layer utilities {
+	.elevation-inset {
+		@apply inset-shadow-xs;
+		@apply inset-shadow-inset;
+	}
+
+	.elevation-low {
+		@apply shadow-sm;
+	}
+
+	.elevation-medium {
+		@apply shadow-md;
+	}
+
+	.elevation-high {
+		@apply shadow-lg;
+	}
+
+	.highlight {
+		@apply inset-shadow-xs;
+		@apply inset-shadow-highlight;
+	}
+}

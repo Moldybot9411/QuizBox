@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { PUBLIC_PARTYKIT_HOST } from '$env/static/public';
+	import Button from '$lib/components/Button.svelte';
+	import Card from '$lib/components/Card.svelte';
 	import { doesRoomExist } from '$lib/gameStore.svelte';
+	import { CirclePlus, Moon } from '@lucide/svelte';
 
 	let errorMessage = $state('');
 
@@ -44,25 +47,24 @@
 	}
 </script>
 
-<h1 class="mb-4 text-2xl font-extrabold">Welcome</h1>
+<div class="flex min-h-[calc(100dvh-2rem)] w-full flex-col items-center justify-center gap-8">
+	<img src="/logo.png" alt="PowerTrivia Logo" class="mx-auto w-64" />
 
-<form onsubmit={handleSubmit} class="mb-4 flex w-fit flex-col gap-4 rounded-md bg-gray-200 p-4">
-	<label class="flex flex-col gap-1">
-		Enter room code
-		<input name="roomCode" type="text" class="bg-gray-100 px-4 py-2" />
-	</label>
-	<button
-		type="submit"
-		class="cursor-pointer rounded-md bg-indigo-400 px-4 py-2 font-bold text-white hover:bg-indigo-500">
-		Join
-	</button>
-	{#if errorMessage}
-		<span class="wrap-anywhere text-red-500">{errorMessage}</span>
-	{/if}
-</form>
+	<Card elevation="low">
+		<form onsubmit={handleSubmit} class="flex flex-col gap-4">
+			<label class="flex flex-col gap-1">
+				<span class="font-bold"> Enter room code </span>
+				<input
+					name="roomCode"
+					type="text"
+					class="elevation-inset rounded-md bg-surface-light px-4 py-2 text-text-muted" />
+			</label>
+			<Button label="Join" type="submit" />
+			{#if errorMessage}
+				<span class="wrap-anywhere text-red-500">{errorMessage}</span>
+			{/if}
+		</form>
+	</Card>
 
-<button
-	class="cursor-pointer rounded-md bg-indigo-400 px-4 py-2 font-bold text-white hover:bg-indigo-500"
-	onclick={createRoom}>
-	+ Create
-</button>
+	<Button onclick={createRoom} icon={CirclePlus} label="Create" elevation="low" />
+</div>

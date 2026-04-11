@@ -15,11 +15,11 @@
 
 <div
 	class={[
-		'rounded-md border border-gray-300 bg-gray-100 p-4 text-gray-800 inset-shadow-xs inset-shadow-white',
-		elevation === 'low' && 'shadow-sm',
-		elevation === 'medium' && 'shadow-md',
-		elevation === 'high' && 'shadow-lg',
-		elevation === 'inset' && 'bg-white! inset-shadow-gray-400!',
+		'rounded-md border border-border bg-surface p-4 text-text',
+		elevation === 'low' && 'elevation-low highlight',
+		elevation === 'medium' && 'elevation-medium highlight',
+		elevation === 'high' && 'elevation-high highlight',
+		elevation === 'inset' && 'elevation-inset bg-surface-light',
 		classes,
 	]}
 	{style}
