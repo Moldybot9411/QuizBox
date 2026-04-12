@@ -17,6 +17,7 @@ type GameData = {
 	socket?: PartySocket;
 	readonly isAdmin: boolean;
 	adminSecret?: string;
+	yourAnswer?: number;
 };
 
 export const gameData: GameData = $state({
@@ -32,10 +33,20 @@ export function initGame(
 	roomId: string,
 	onstatechange: (oldstate: State, newState: State) => void
 ) {
+	const lastId = localStorage.getItem('lastId');
+	const lastName = localStorage.getItem('lastName');
+
 	gameData.socket = new PartySocket({
 		host: PUBLIC_PARTYKIT_HOST,
 		room: roomId,
+		id: lastId ?? undefined,
 	});
+
+	localStorage.setItem('lastId', gameData.socket.id);
+
+	if (lastName) {
+		changeName(lastName);
+	}
 
 	gameData.socket.addEventListener('message', (event) => {
 		try {
@@ -61,10 +72,13 @@ export function initGame(
 					gameData.state.adminId = message.adminId;
 					break;
 
-				case MessageType.ADMINSECRET: {
+				case MessageType.ADMINSECRET:
 					gameData.adminSecret = message.secret;
 					break;
-				}
+
+				case MessageType.YOUR_ANSWER:
+					gameData.yourAnswer = message.index;
+					break;
 			}
 		} catch (error) {
 			console.error('Received wrong message from Server:', error);
@@ -125,6 +139,19 @@ export function changeName(name: string) {
 	const obj: ClientMessage = {
 		action: ActionMessage.CHANGE_NAME,
 		name,
+	};
+
+	if (!gameData.state.players.find((el) => el.name === name.trim()) && name.trim().length <= 25) {
+		localStorage.setItem('lastName', name);
+	}
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function submitAnswer(index: number) {
+	const obj: ClientMessage = {
+		action: ActionMessage.SUBMIT_ANSWER,
+		index,
 	};
 
 	gameData.socket?.send(JSON.stringify(obj));

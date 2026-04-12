@@ -1,4 +1,4 @@
-import z from 'zod';
+import z, { literal, number } from 'zod';
 
 // General state the game is currently in
 export enum State {
@@ -14,6 +14,7 @@ export enum MessageType {
 	COUNTERUPDATE,
 	ADMINCHANGE,
 	ADMINSECRET,
+	YOUR_ANSWER,
 }
 
 // Action Message ( Client -> Server )
@@ -23,6 +24,7 @@ export enum ActionMessage {
 	RESET,
 	BACK_TO_LOBBY,
 	CHANGE_NAME,
+	SUBMIT_ANSWER,
 }
 
 export enum ItemType {
@@ -71,12 +73,18 @@ const AdminSecretMessageSchema = z.object({
 	secret: z.string(),
 });
 
+const YourAnswerMessageScheme = z.object({
+	type: z.literal(MessageType.YOUR_ANSWER),
+	index: z.number().optional(),
+});
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
 	SyncMessageSchema,
 	PlayerCountMessageSchema,
 	CounterUpdateMessageSchema,
 	AdminChangeMessageSchema,
 	AdminSecretMessageSchema,
+	YourAnswerMessageScheme,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
@@ -136,12 +144,18 @@ const ChangeNameActionMessage = z.object({
 	name: z.string(),
 });
 
+const SubmitAnswerActionMessage = z.object({
+	action: z.literal(ActionMessage.SUBMIT_ANSWER),
+	index: z.number(),
+});
+
 export const ClientMessageSchema = z.discriminatedUnion('action', [
 	StartGameActionMessage,
 	IncreaseCounterActionMessage,
 	ResetActionMessage,
 	BackToLobbyActionMessage,
 	ChangeNameActionMessage,
+	SubmitAnswerActionMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

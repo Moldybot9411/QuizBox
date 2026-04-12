@@ -21,12 +21,14 @@ export default class Server implements Party.Server {
 		this.gameState = createDefaultState();
 		this.adminSecret = '';
 		this.transitionTo(this.gameState.state);
+		this.answers = new Map<string, number>();
 	}
 
 	gameState: GameState;
 	adminSecret: string;
 	triviaData: TriviaData | undefined;
 	stateHandler!: GameStateHandler;
+	answers: Map<string, number>; // Map of which player answered what
 
 	async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext): Promise<void> {
 		const created = await this.room.storage.get<boolean>('created');
@@ -57,6 +59,10 @@ export default class Server implements Party.Server {
 			};
 
 			connection.send(JSON.stringify(envelope));
+		}
+
+		if (this.stateHandler.onConnect) {
+			this.stateHandler.onConnect(connection);
 		}
 
 		const sync: ServerMessage = {
@@ -97,6 +103,10 @@ export default class Server implements Party.Server {
 			};
 
 			nextAdmin.send(JSON.stringify(envelope));
+		}
+
+		if (this.stateHandler.onClose) {
+			this.stateHandler.onClose(connection);
 		}
 
 		const playerUpdate: ServerMessage = {
@@ -169,6 +179,8 @@ export default class Server implements Party.Server {
 
 		await this.room.storage.delete('created');
 		this.gameState = createDefaultState();
+		this.adminSecret = '';
+		this.triviaData = undefined;
 	}
 
 	/**
@@ -196,6 +208,7 @@ export default class Server implements Party.Server {
 		resetState.playerCount = this.gameState.playerCount;
 
 		this.triviaData = undefined;
+		this.answers = new Map<string, number>();
 
 		this.gameState = resetState;
 	}
