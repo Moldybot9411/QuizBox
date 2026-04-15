@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { base, resolve } from '$app/paths';
 	import { PUBLIC_PARTYKIT_HOST } from '$env/static/public';
 	import Button from '$lib/components/Button.svelte';
 	import Card from '$lib/components/Card.svelte';
@@ -49,7 +50,7 @@
 
 <div class="flex min-h-[calc(100dvh-2rem)] w-full flex-col items-center justify-center gap-8">
 	<div class="flex flex-col flex-nowrap items-center gap-1">
-		<img src="/QuizBox.svg" alt="QuizBox Logo Logo" class="w-20" />
+		<img src={resolve('/QuizBox.svg')} alt="QuizBox Logo Logo" class="w-20" />
 		<h1 class="flex flex-col text-center font-bold">
 			<span class="text-5xl">Quiz</span>
 			<span class="text-4xl tracking-widest text-text-muted">BOX</span>
