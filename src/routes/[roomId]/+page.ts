@@ -11,3 +11,5 @@ export const load: PageLoad = async ({ params }) => {
 		goto('/');
 	}
 };
+
+export const prerender = false;

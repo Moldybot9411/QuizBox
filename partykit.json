@@ -1,6 +1,6 @@
 {
 	"$schema": "https://www.partykit.io/schema.json",
-	"name": "gamestate",
+	"name": "quizbox",
 	"main": "party/server.ts",
 	"parties": {
 		"api": "party/api.ts"

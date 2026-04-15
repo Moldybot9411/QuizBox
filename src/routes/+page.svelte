@@ -26,7 +26,7 @@
 		const roomCode = data['roomCode'] as string;
 		const roomExists = await doesRoomExist(roomCode);
 		if (roomExists) {
-			goto(`/${roomCode}`);
+			goto(`${roomCode}`);
 			return;
 		}
 
@@ -39,7 +39,7 @@
 		if (resp.ok) {
 			const newId = await resp.text();
 
-			goto(`/${newId}`);
+			goto(`${newId}`);
 			return;
 		}
 
