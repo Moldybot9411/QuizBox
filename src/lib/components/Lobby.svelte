@@ -37,7 +37,7 @@
 	const opentdbUrl = $derived.by(() => {
 		const params = new URLSearchParams();
 
-		params.append('amount', numRounds ? numRounds.toString() : String(10));
+		params.append('amount', numRounds && numRounds > 0 ? numRounds.toString() : String(10));
 
 		if (category !== 'any') {
 			params.append('category', category);
@@ -209,7 +209,7 @@
 
 			<select
 				bind:value={difficulty}
-				class="ounded-md border border-border bg-surface-light p-2 font-bold text-text">
+				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
 				<option value="any">Any Difficulty</option>
 				<option value="easy">Easy</option>
 				<option value="medium">Medium</option>
@@ -222,7 +222,7 @@
 
 			<select
 				bind:value={questionType}
-				class="rounded-md border border-border bg-surface-light p-2 text-text">
+				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
 				<option value="any">Any Type</option>
 				<option value="boolean">True / False</option>
 				<option value="multiple">Multiple Choice</option>

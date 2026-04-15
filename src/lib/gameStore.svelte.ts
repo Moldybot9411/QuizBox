@@ -3,12 +3,13 @@ import PartySocket from 'partysocket';
 import {
 	ActionMessage,
 	createDefaultState,
-	GameStateSchema,
 	MessageType,
 	ServerMessageSchema,
 	State,
 	type ClientMessage,
 	type GameState,
+	type QuestionData,
+	type RoundResult,
 	type TriviaData,
 } from '$lib/shared/schema';
 
@@ -18,6 +19,8 @@ type GameData = {
 	readonly isAdmin: boolean;
 	adminSecret?: string;
 	yourAnswer?: number;
+	questionData?: QuestionData;
+	roundResult?: RoundResult;
 };
 
 export const gameData: GameData = $state({
@@ -55,7 +58,6 @@ export function initGame(
 
 			switch (message.type) {
 				case MessageType.SYNC:
-					// Fire callback if state is different after sync
 					if (gameData.state.state !== message.gameState.state) {
 						onstatechange(gameData.state.state, message.gameState.state);
 					}
@@ -78,6 +80,14 @@ export function initGame(
 
 				case MessageType.YOUR_ANSWER:
 					gameData.yourAnswer = message.index;
+					break;
+
+				case MessageType.QUESTION_PREVIEW:
+					gameData.questionData = message;
+					break;
+
+				case MessageType.ROUND_RESULT:
+					gameData.roundResult = message;
 					break;
 			}
 		} catch (error) {
@@ -152,6 +162,14 @@ export function submitAnswer(index: number) {
 	const obj: ClientMessage = {
 		action: ActionMessage.SUBMIT_ANSWER,
 		index,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function nextRound() {
+	const obj: ClientMessage = {
+		action: ActionMessage.NEXT_ROUND,
 	};
 
 	gameData.socket?.send(JSON.stringify(obj));

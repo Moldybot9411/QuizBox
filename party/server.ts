@@ -15,20 +15,23 @@ import { LobbyState } from './states/LobbyState';
 import { PlayingState } from './states/PlayingState';
 import { PostgameState } from './states/PostgameState';
 import randomName from '@scaleway/random-name';
+import { EvaluationState } from './states/EvaluationState';
 
 export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {
 		this.gameState = createDefaultState();
 		this.adminSecret = '';
 		this.transitionTo(this.gameState.state);
-		this.answers = new Map<string, number>();
+		this.playerAnswers = new Map();
+		this.scoreBoard = new Map();
 	}
 
 	gameState: GameState;
 	adminSecret: string;
 	triviaData: TriviaData | undefined;
 	stateHandler!: GameStateHandler;
-	answers: Map<string, number>; // Map of which player answered what
+	playerAnswers: Map<string, { index: number; answer: string; timeDelta: number }>; // Which player answered what
+	scoreBoard: Map<string, { totalScore: number }>;
 
 	async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext): Promise<void> {
 		const created = await this.room.storage.get<boolean>('created');
@@ -208,7 +211,8 @@ export default class Server implements Party.Server {
 		resetState.playerCount = this.gameState.playerCount;
 
 		this.triviaData = undefined;
-		this.answers = new Map<string, number>();
+		this.playerAnswers = new Map();
+		this.scoreBoard = new Map();
 
 		this.gameState = resetState;
 	}
@@ -233,6 +237,9 @@ export default class Server implements Party.Server {
 				break;
 			case State.PLAYING:
 				this.stateHandler = new PlayingState(this);
+				break;
+			case State.EVALUATION:
+				this.stateHandler = new EvaluationState(this);
 				break;
 			case State.POSTGAME:
 				this.stateHandler = new PostgameState(this);

@@ -1,4 +1,4 @@
-# Power Trivia
+# QuizBox
 
 ## Running the project locally
 

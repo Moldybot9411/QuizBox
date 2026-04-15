@@ -29,6 +29,8 @@ export class LobbyState implements GameStateHandler {
 
 				this.server.triviaData = message.triviaData;
 
+				this.server.gameState.numRounds = message.triviaData.results.length;
+
 				this.server.transitionTo(State.PLAYING);
 				break;
 

@@ -48,7 +48,13 @@
 </script>
 
 <div class="flex min-h-[calc(100dvh-2rem)] w-full flex-col items-center justify-center gap-8">
-	<img src="/logo.png" alt="PowerTrivia Logo" class="mx-auto w-64" />
+	<div class="flex flex-col flex-nowrap items-center gap-1">
+		<img src="/QuizBox.svg" alt="QuizBox Logo Logo" class="w-20" />
+		<h1 class="flex flex-col text-center font-bold">
+			<span class="text-5xl">Quiz</span>
+			<span class="text-4xl tracking-widest text-text-muted">BOX</span>
+		</h1>
+	</div>
 
 	<Card elevation="low">
 		<form onsubmit={handleSubmit} class="flex flex-col gap-4">

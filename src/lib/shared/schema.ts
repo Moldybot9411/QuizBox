@@ -1,9 +1,10 @@
-import z, { literal, number } from 'zod';
+import z, { literal, number, type TypeOf } from 'zod';
 
 // General state the game is currently in
 export enum State {
 	LOBBY,
 	PLAYING,
+	EVALUATION,
 	POSTGAME,
 }
 
@@ -15,6 +16,8 @@ export enum MessageType {
 	ADMINCHANGE,
 	ADMINSECRET,
 	YOUR_ANSWER,
+	QUESTION_PREVIEW,
+	ROUND_RESULT,
 }
 
 // Action Message ( Client -> Server )
@@ -25,6 +28,7 @@ export enum ActionMessage {
 	BACK_TO_LOBBY,
 	CHANGE_NAME,
 	SUBMIT_ANSWER,
+	NEXT_ROUND,
 }
 
 export enum ItemType {
@@ -39,8 +43,6 @@ export const GameStateSchema = z.object({
 	playerCount: z.number(),
 	numRounds: z.number(),
 	currentRound: z.number(),
-	question: z.string(),
-	options: z.array(z.string()),
 	adminId: z.string(),
 	players: z.array(z.object({ id: z.string(), name: z.string() })),
 });
@@ -73,10 +75,28 @@ const AdminSecretMessageSchema = z.object({
 	secret: z.string(),
 });
 
-const YourAnswerMessageScheme = z.object({
+const YourAnswerMessageSchema = z.object({
 	type: z.literal(MessageType.YOUR_ANSWER),
 	index: z.number().optional(),
 });
+
+const QuestionPreviewMessageScheme = z.object({
+	type: z.literal(MessageType.QUESTION_PREVIEW),
+	question: z.string(),
+	answers: z.array(z.string()),
+	serverTime: z.number(),
+	revealTime: z.number(),
+	endTime: z.number(),
+});
+export type QuestionData = z.infer<typeof QuestionPreviewMessageScheme>;
+
+const RoundResultMessageSchema = z.object({
+	type: z.literal(MessageType.ROUND_RESULT),
+	result: z.enum(['correct', 'wrong', 'no_answer']),
+	timeDelta: z.number(),
+	score: z.number(),
+});
+export type RoundResult = z.infer<typeof RoundResultMessageSchema>;
 
 export const ServerMessageSchema = z.discriminatedUnion('type', [
 	SyncMessageSchema,
@@ -84,7 +104,9 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
 	CounterUpdateMessageSchema,
 	AdminChangeMessageSchema,
 	AdminSecretMessageSchema,
-	YourAnswerMessageScheme,
+	YourAnswerMessageSchema,
+	QuestionPreviewMessageScheme,
+	RoundResultMessageSchema,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
@@ -112,8 +134,6 @@ export function createDefaultState(): GameState {
 		playerCount: 0,
 		numRounds: 10,
 		currentRound: 0,
-		question: '',
-		options: [],
 		adminId: '',
 		players: [],
 	};
@@ -149,6 +169,10 @@ const SubmitAnswerActionMessage = z.object({
 	index: z.number(),
 });
 
+const NextRoundActionMessage = z.object({
+	action: z.literal(ActionMessage.NEXT_ROUND),
+});
+
 export const ClientMessageSchema = z.discriminatedUnion('action', [
 	StartGameActionMessage,
 	IncreaseCounterActionMessage,
@@ -156,6 +180,7 @@ export const ClientMessageSchema = z.discriminatedUnion('action', [
 	BackToLobbyActionMessage,
 	ChangeNameActionMessage,
 	SubmitAnswerActionMessage,
+	NextRoundActionMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;
