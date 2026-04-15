@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Poject
         env:
-          PUBLIC_PARTYKIT_HOST: ${{ env.PUBLIC_PARTYKIT_HOST }}
+          PUBLIC_PARTYKIT_HOST: ${{ vars.PUBLIC_PARTYKIT_HOST }}
         run: npm run build
 
       - name: Setup Pages
