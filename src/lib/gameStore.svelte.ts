@@ -33,8 +33,8 @@ export function initGame(
 	roomId: string,
 	onstatechange: (oldstate: State, newState: State) => void
 ) {
-	const lastId = localStorage.getItem('lastId');
-	const lastName = localStorage.getItem('lastName');
+	const lastId = sessionStorage.getItem('lastId');
+	const lastName = sessionStorage.getItem('lastName');
 
 	gameData.socket = new PartySocket({
 		host: PUBLIC_PARTYKIT_HOST,
@@ -42,7 +42,7 @@ export function initGame(
 		id: lastId ?? undefined,
 	});
 
-	localStorage.setItem('lastId', gameData.socket.id);
+	sessionStorage.setItem('lastId', gameData.socket.id);
 
 	if (lastName) {
 		changeName(lastName);
@@ -142,7 +142,7 @@ export function changeName(name: string) {
 	};
 
 	if (!gameData.state.players.find((el) => el.name === name.trim()) && name.trim().length <= 25) {
-		localStorage.setItem('lastName', name);
+		sessionStorage.setItem('lastName', name);
 	}
 
 	gameData.socket?.send(JSON.stringify(obj));

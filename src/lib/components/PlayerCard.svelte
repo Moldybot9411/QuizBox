@@ -3,7 +3,6 @@
 	import Card from './Card.svelte';
 	import { changeName, gameData } from '$lib/gameStore.svelte';
 	import { Check, Crown, Pen, User, X } from '@lucide/svelte';
-	import { error } from '@sveltejs/kit';
 	import { addToast } from './Toast.svelte';
 	import Button from './Button.svelte';
 
@@ -14,7 +13,7 @@
 		style?: string;
 	};
 
-	let { name, id, class: classes, style, ...others }: Props = $props();
+	let { name, id, class: classes, style }: Props = $props();
 
 	let isEditing = $state(false);
 	let inputFieldRef: HTMLInputElement | null = $state(null);
@@ -57,7 +56,8 @@
 <Card
 	elevation="inset"
 	title={id === gameData.socket?.id ? 'This is you' : undefined}
-	class="flex min-h-17 flex-1 basis-sm items-center gap-2 text-xl font-bold">
+	class={['flex min-h-17 flex-1 basis-sm items-center gap-2 text-xl font-bold', classes]}
+	{style}>
 	{#if id === gameData.state.adminId}
 		<Crown color="orange" class="min-w-6" />
 	{/if}

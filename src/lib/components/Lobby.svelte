@@ -25,18 +25,6 @@
 	let triviaData: TriviaData | undefined = $state(undefined);
 
 	let isLoading = $state(false);
-	let errorMessage = $state('');
-
-	let timeOutCtx = 0;
-	$effect(() => {
-		if (errorMessage) {
-			clearTimeout(timeOutCtx);
-
-			timeOutCtx = setTimeout(() => {
-				errorMessage = '';
-			}, 5000);
-		}
-	});
 
 	$inspect(triviaData);
 
