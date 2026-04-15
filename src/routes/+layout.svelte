@@ -1,12 +1,12 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { onNavigate } from '$app/navigation';
 	import { gameData } from '$lib/gameStore.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { Moon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 
 	let { children } = $props();
 
@@ -50,7 +50,7 @@
 	<Moon />
 </Button>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head><link rel="icon" href={resolve('/QuizBox.svg')} /></svelte:head>
 {@render children()}
 
 <Toast />
