@@ -1,5 +1,7 @@
 # QuizBox
 
+**Play Here**: https://moldybot9411.github.io/QuizBox
+
 ## Running the project locally
 
 - Copy `.env.example` and rename it to `.env`
