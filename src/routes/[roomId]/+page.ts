@@ -8,7 +8,7 @@ export const load: PageLoad = async ({ params }) => {
 	const roomExists = await doesRoomExist(roomId);
 
 	if (!roomExists) {
-		goto('/');
+		goto('../');
 	}
 };
 
