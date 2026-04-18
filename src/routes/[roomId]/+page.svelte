@@ -14,6 +14,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Room {params.roomId} | QuizBox</title>
+</svelte:head>
+
 {#if gameData.state.state === State.LOBBY}
 	<Lobby roomId={params.roomId} />
 {:else if gameData.state.state === State.PLAYING}

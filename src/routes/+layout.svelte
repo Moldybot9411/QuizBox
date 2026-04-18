@@ -51,6 +51,9 @@
 </Button>
 
 <svelte:head><link rel="icon" href={resolve('/QuizBox.svg')} /></svelte:head>
-{@render children()}
+
+<main>
+	{@render children()}
+</main>
 
 <Toast />
