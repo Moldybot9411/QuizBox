@@ -18,15 +18,39 @@ export class EvaluationState implements GameStateHandler {
 	constructor(private server: Server) {}
 
 	onEnter(): void {
+		this.server.gameState.lastCorrectAnswer =
+			this.server.getCurrentTriviaData()?.correct_answer ?? '';
+
 		const allConnections = Array.from(this.server.room.getConnections());
 
 		for (const conn of allConnections) {
 			this.sendResult(conn);
 		}
+
+		const digest = this.getRoundDigest();
+
+		this.server.room.broadcast(JSON.stringify(digest));
 	}
 
 	onConnect(connection: Connection): void {
+		// Send player's score
 		this.sendResult(connection);
+
+		// Send player the round digest
+		const digest = this.getRoundDigest();
+
+		connection.send(JSON.stringify(digest));
+
+		// Send player's answer
+		const playerAnswer = this.server.playerAnswers.get(connection.id);
+
+		const answer: ServerMessage = {
+			type: MessageType.YOUR_ANSWER,
+			index: playerAnswer?.index,
+			text: playerAnswer?.answer,
+		};
+
+		connection.send(JSON.stringify(answer));
 	}
 
 	onMessage(message: ClientMessage, sender: Connection): void {
@@ -96,13 +120,42 @@ export class EvaluationState implements GameStateHandler {
 			: 'no_answer';
 		const score = this.calculateScore(connection.id);
 
-		const envelope: ServerMessage = {
+		const playerResult: ServerMessage = {
 			type: MessageType.ROUND_RESULT,
 			result: playerAnswerStatus,
 			timeDelta: playerAnswer?.timeDelta ?? 0,
 			score: score,
 		};
 
-		connection.send(JSON.stringify(envelope));
+		const playerAnswerEnvelope: ServerMessage = {
+			type: MessageType.YOUR_ANSWER,
+			index: playerAnswer?.index,
+			text: playerAnswer?.answer,
+		};
+
+		connection.send(JSON.stringify(playerResult));
+		connection.send(JSON.stringify(playerAnswerEnvelope));
+	}
+
+	getRoundDigest(): ServerMessage {
+		let answerStats: Record<string, number> = {};
+		const triviaData = this.server.getCurrentTriviaData();
+
+		for (const answer of this.server.getCurrentAnswers()) {
+			answerStats[answer] = Array.from(this.server.playerAnswers.values()).filter(
+				(playerData) => playerData.answer === answer
+			).length;
+		}
+
+		return {
+			type: MessageType.ROUND_DIGEST,
+			questionData: {
+				question: this.server.getCurrentQuestion(),
+				answers: this.server.getCurrentAnswers(),
+			},
+			scoreBoard: this.server.gameState.scoreBoard,
+			answerStats,
+			lastCorrectAnswer: triviaData?.correct_answer ?? '',
+		};
 	}
 }

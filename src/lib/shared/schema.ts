@@ -1,4 +1,4 @@
-import z, { literal, number, type TypeOf } from 'zod';
+import z from 'zod';
 
 // General state the game is currently in
 export enum State {
@@ -17,7 +17,8 @@ export enum MessageType {
 	ADMINSECRET,
 	YOUR_ANSWER,
 	QUESTION_PREVIEW,
-	ROUND_RESULT,
+	ROUND_RESULT, // Your own result (Answer, Score)
+	ROUND_DIGEST, // Correct Answer, Scoreboard
 }
 
 // Action Message ( Client -> Server )
@@ -45,6 +46,16 @@ export const GameStateSchema = z.object({
 	currentRound: z.number(),
 	adminId: z.string(),
 	players: z.array(z.object({ id: z.string(), name: z.string() })),
+	scoreBoard: z.record(
+		z.string(),
+		z.object({
+			totalScore: z.number(),
+			name: z.string(),
+			numCorrectAnswers: z.number(),
+		})
+	),
+	lastAnswerStats: z.record(z.string(), z.number()),
+	lastCorrectAnswer: z.string(),
 });
 
 export type GameState = z.infer<typeof GameStateSchema>;
@@ -78,7 +89,9 @@ const AdminSecretMessageSchema = z.object({
 const YourAnswerMessageSchema = z.object({
 	type: z.literal(MessageType.YOUR_ANSWER),
 	index: z.number().optional(),
+	text: z.string().optional(),
 });
+export type YourAnswerData = z.infer<typeof YourAnswerMessageSchema>;
 
 const QuestionPreviewMessageScheme = z.object({
 	type: z.literal(MessageType.QUESTION_PREVIEW),
@@ -98,6 +111,15 @@ const RoundResultMessageSchema = z.object({
 });
 export type RoundResult = z.infer<typeof RoundResultMessageSchema>;
 
+const RoundDigestMessageschema = z.object({
+	type: z.literal(MessageType.ROUND_DIGEST),
+	scoreBoard: GameStateSchema.shape.scoreBoard,
+	questionData: QuestionPreviewMessageScheme.pick({ question: true, answers: true }),
+	answerStats: GameStateSchema.shape.lastAnswerStats,
+	lastCorrectAnswer: z.string(),
+});
+export type AnswerStats = z.infer<typeof RoundDigestMessageschema.shape.answerStats>;
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
 	SyncMessageSchema,
 	PlayerCountMessageSchema,
@@ -107,6 +129,7 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
 	YourAnswerMessageSchema,
 	QuestionPreviewMessageScheme,
 	RoundResultMessageSchema,
+	RoundDigestMessageschema,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
@@ -136,6 +159,9 @@ export function createDefaultState(): GameState {
 		currentRound: 0,
 		adminId: '',
 		players: [],
+		scoreBoard: {},
+		lastAnswerStats: {},
+		lastCorrectAnswer: '',
 	};
 }
 

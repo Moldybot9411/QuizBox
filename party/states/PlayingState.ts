@@ -16,14 +16,8 @@ import {
 
 export class PlayingState implements GameStateHandler {
 	constructor(private server: Server) {
-		this.question =
-			this.server.triviaData?.results[this.server.gameState.currentRound].question || '';
-		this.answers = this.server.triviaData?.results[this.server.gameState.currentRound]
-			? [
-					...this.server.triviaData.results[this.server.gameState.currentRound].incorrect_answers,
-					this.server.triviaData.results[this.server.gameState.currentRound].correct_answer,
-				].sort(() => Math.random() - 0.5)
-			: [];
+		this.question = this.server.getCurrentQuestion();
+		this.answers = this.server.getCurrentAnswers().sort(() => Math.random() - 0.5);
 		this.serverNow = Date.now();
 		this.revealTime = this.serverNow + this.networkBuffer + this.countdownDuration;
 		this.endTime = this.revealTime + this.roundDuration;
@@ -39,7 +33,7 @@ export class PlayingState implements GameStateHandler {
 	revealTime: number;
 	endTime: number;
 
-	timeoutId: number | undefined;
+	timeoutId: NodeJS.Timeout | undefined;
 
 	onConnect(connection: Connection): void {
 		const questionData: ServerMessage = {
@@ -61,6 +55,7 @@ export class PlayingState implements GameStateHandler {
 		const envelope: ServerMessage = {
 			type: MessageType.YOUR_ANSWER,
 			index: answer.index,
+			text: answer.answer,
 		};
 
 		connection.send(JSON.stringify(envelope));

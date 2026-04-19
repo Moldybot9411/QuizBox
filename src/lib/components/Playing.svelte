@@ -15,7 +15,7 @@
 	let remainingTime = $state(ROUND_DURATION);
 	let animationFrameId: number;
 
-	let selectedIndex = $state(gameData.yourAnswer);
+	let selectedIndex = $state(gameData.yourAnswer?.index);
 	let progress = $derived.by(() => (remainingTime / (ROUND_DURATION / 1000)) * 100);
 	let countdownFinished = $derived.by(() => phase !== 'COUNTDOWN');
 

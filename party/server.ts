@@ -23,7 +23,6 @@ export default class Server implements Party.Server {
 		this.adminSecret = '';
 		this.transitionTo(this.gameState.state);
 		this.playerAnswers = new Map();
-		this.scoreBoard = new Map();
 	}
 
 	gameState: GameState;
@@ -31,7 +30,6 @@ export default class Server implements Party.Server {
 	triviaData: TriviaData | undefined;
 	stateHandler!: GameStateHandler;
 	playerAnswers: Map<string, { index: number; answer: string; timeDelta: number }>; // Which player answered what
-	scoreBoard: Map<string, { totalScore: number }>;
 
 	async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext): Promise<void> {
 		const created = await this.room.storage.get<boolean>('created');
@@ -220,7 +218,6 @@ export default class Server implements Party.Server {
 
 		this.triviaData = undefined;
 		this.playerAnswers = new Map();
-		this.scoreBoard = new Map();
 
 		this.gameState = resetState;
 	}
@@ -259,5 +256,22 @@ export default class Server implements Party.Server {
 		}
 
 		this.broadcastSync();
+	}
+
+	public getCurrentQuestion(): string {
+		return this.triviaData?.results[this.gameState.currentRound].question || '';
+	}
+
+	public getCurrentAnswers(): string[] {
+		return this.triviaData?.results[this.gameState.currentRound]
+			? [
+					...this.triviaData.results[this.gameState.currentRound].incorrect_answers,
+					this.triviaData.results[this.gameState.currentRound].correct_answer,
+				]
+			: [];
+	}
+
+	public getCurrentTriviaData() {
+		return this.triviaData?.results[this.gameState.currentRound];
 	}
 }
