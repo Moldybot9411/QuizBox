@@ -95,17 +95,25 @@ export default class Server implements Party.Server {
 		this.gameState.players = this.gameState.players.filter((p) => p.id !== connection.id);
 
 		if (this.gameState.playerCount > 0 && connection.id === this.gameState.adminId) {
-			const nextAdmin = Array.from(this.room.getConnections())[0];
-			this.gameState.adminId = nextAdmin.id;
+			const connections = Array.from(this.room.getConnections()).filter(
+				(el) => el.id !== connection.id
+			);
 
-			this.adminSecret = nanoid();
+			if (connections.length > 0) {
+				const nextAdmin = connections[0];
+				this.gameState.adminId = nextAdmin.id;
 
-			const envelope: ServerMessage = {
-				type: MessageType.ADMINSECRET,
-				secret: this.adminSecret,
-			};
+				this.adminSecret = nanoid();
 
-			nextAdmin.send(JSON.stringify(envelope));
+				const envelope: ServerMessage = {
+					type: MessageType.ADMINSECRET,
+					secret: this.adminSecret,
+				};
+
+				nextAdmin.send(JSON.stringify(envelope));
+			} else {
+				this.gameState.adminId = '';
+			}
 		}
 
 		if (this.stateHandler.onClose) {
@@ -149,7 +157,7 @@ export default class Server implements Party.Server {
 		let exists = await this.room.storage.get<boolean>('created');
 		const tokenHeader = req.headers.get('token');
 
-		if (!tokenHeader && tokenHeader !== this.room.env['SECRET_TOKEN']) {
+		if (!tokenHeader || tokenHeader !== this.room.env['SECRET_TOKEN']) {
 			return new Response('Unauthorized', { status: 401, headers: corsHeaders });
 		}
 

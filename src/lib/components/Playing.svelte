@@ -6,16 +6,17 @@
 	import ProgressBar from './ProgressBar.svelte';
 	import Countdown from './Countdown.svelte';
 	import { onDestroy, onMount } from 'svelte';
+	import { ROUND_COUNTDOWN_DURATION, ROUND_DURATION } from '$lib/shared/gameSettings';
 
 	const timeOffset = Date.now() - (gameData.questionData?.serverTime ?? Date.now());
 
 	let phase: 'BUFFER' | 'COUNTDOWN' | 'PLAYING' = $state('BUFFER');
 	let bufferDisplayTime = $state(0);
-	let remainingTime = $state(10.0);
+	let remainingTime = $state(ROUND_DURATION);
 	let animationFrameId: number;
 
 	let selectedIndex = $state(gameData.yourAnswer);
-	let progress = $derived.by(() => (remainingTime / 10.0) * 100);
+	let progress = $derived.by(() => (remainingTime / (ROUND_DURATION / 1000)) * 100);
 	let countdownFinished = $derived.by(() => phase !== 'COUNTDOWN');
 
 	function gameLoop() {
@@ -26,7 +27,7 @@
 		if (syncedNow < revealTime) {
 			const remainingToReveal = revealTime - syncedNow;
 
-			if (remainingToReveal > 3000) {
+			if (remainingToReveal > ROUND_COUNTDOWN_DURATION) {
 				phase = 'BUFFER';
 			} else {
 				phase = 'COUNTDOWN';

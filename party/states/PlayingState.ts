@@ -8,6 +8,11 @@ import {
 } from '../../src/lib/shared/schema';
 import type Server from '../server';
 import { GameStateHandler } from './GameStateHandler';
+import {
+	ROUND_COUNTDOWN_DURATION,
+	ROUND_DURATION,
+	ROUND_NETWORK_BUFFER_DURATION,
+} from '../../src/lib/shared/gameSettings';
 
 export class PlayingState implements GameStateHandler {
 	constructor(private server: Server) {
@@ -24,9 +29,9 @@ export class PlayingState implements GameStateHandler {
 		this.endTime = this.revealTime + this.roundDuration;
 	}
 
-	networkBuffer = 1000;
-	countdownDuration = 3000;
-	roundDuration = 10000;
+	networkBuffer = ROUND_NETWORK_BUFFER_DURATION;
+	countdownDuration = ROUND_COUNTDOWN_DURATION;
+	roundDuration = ROUND_DURATION;
 
 	question: string;
 	answers: string[];
@@ -48,6 +53,7 @@ export class PlayingState implements GameStateHandler {
 
 		connection.send(JSON.stringify(questionData));
 
+		// Send the player's answer from this round
 		const answer = this.server.playerAnswers.get(connection.id);
 
 		if (!answer) return;
@@ -77,12 +83,17 @@ export class PlayingState implements GameStateHandler {
 		}, this.endTime - this.serverNow);
 	}
 
+	onLeave(): void {
+		if (this.timeoutId) {
+			clearTimeout(this.timeoutId);
+			this.timeoutId = undefined;
+		}
+	}
+
 	onMessage(message: ClientMessage, sender: Connection): void {
 		switch (message.action) {
 			case ActionMessage.BACK_TO_LOBBY:
 				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
-
-				clearTimeout(this.timeoutId);
 
 				this.server.softReset();
 
@@ -91,6 +102,10 @@ export class PlayingState implements GameStateHandler {
 
 			case ActionMessage.SUBMIT_ANSWER:
 				if (this.server.playerAnswers.get(sender.id)) break;
+
+				if (message.index < 0 || message.index >= this.answers.length) {
+					break;
+				}
 
 				this.server.playerAnswers.set(sender.id, {
 					index: message.index,

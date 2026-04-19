@@ -8,6 +8,11 @@ import {
 	ServerMessage,
 	State,
 } from '../../src/lib/shared/schema';
+import {
+	CORRECT_ANSWER_SCORE_MAX,
+	CORRECT_ANSWER_SCORE_MIN,
+	ROUND_DURATION,
+} from '../../src/lib/shared/gameSettings';
 
 export class EvaluationState implements GameStateHandler {
 	constructor(private server: Server) {}
@@ -59,19 +64,43 @@ export class EvaluationState implements GameStateHandler {
 		this.server.room.broadcast(JSON.stringify(envelope));
 	}
 
+	calculateScore(playerId: string): number {
+		const playerAnswer = this.server.playerAnswers.get(playerId);
+
+		if (!playerAnswer) {
+			return 0;
+		}
+
+		const questionData = this.server.triviaData?.results[this.server.gameState.currentRound]!;
+
+		if (questionData.correct_answer !== playerAnswer.answer) {
+			return 0;
+		}
+
+		const score =
+			CORRECT_ANSWER_SCORE_MIN +
+			(CORRECT_ANSWER_SCORE_MAX - CORRECT_ANSWER_SCORE_MIN) *
+				(1 - playerAnswer.timeDelta / ROUND_DURATION);
+
+		return Math.round(score);
+	}
+
 	sendResult(connection: Connection) {
 		const playerAnswer = this.server.playerAnswers.get(connection.id);
 		const questionData = this.server.triviaData?.results[this.server.gameState.currentRound];
 
+		const playerAnswerStatus = playerAnswer
+			? questionData?.correct_answer === playerAnswer.answer
+				? 'correct'
+				: 'wrong'
+			: 'no_answer';
+		const score = this.calculateScore(connection.id);
+
 		const envelope: ServerMessage = {
 			type: MessageType.ROUND_RESULT,
-			result: playerAnswer
-				? questionData?.correct_answer === playerAnswer.answer
-					? 'correct'
-					: 'wrong'
-				: 'no_answer',
-			timeDelta: playerAnswer?.timeDelta ?? -1,
-			score: 69,
+			result: playerAnswerStatus,
+			timeDelta: playerAnswer?.timeDelta ?? 0,
+			score: score,
 		};
 
 		connection.send(JSON.stringify(envelope));
