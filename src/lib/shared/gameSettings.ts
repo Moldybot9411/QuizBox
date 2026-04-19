@@ -2,8 +2,8 @@ export const CORRECT_ANSWER_SCORE_MIN = 500;
 export const CORRECT_ANSWER_SCORE_MAX = 1000;
 
 export const ROUND_NETWORK_BUFFER_DURATION = 1000;
-export const ROUND_COUNTDOWN_DURATION = 1000;
-export const ROUND_DURATION = 5000;
+export const ROUND_COUNTDOWN_DURATION = 3000;
+export const ROUND_DURATION = 10000;
 
 export const MAX_ROUNDS = 25;
 export const DEFAULT_ROUNDS = 10;
