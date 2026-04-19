@@ -47,23 +47,23 @@ export class LobbyState implements GameStateHandler {
 					break;
 				}
 
-				const nameExists = this.server.gameState.players.some(
-					(p) => p.name.trim() === message.name.trim()
-				);
+				const trimmedName = message.name.trim();
+
+				if (trimmedName.length === 0) {
+					break;
+				}
+
+				const nameExists = this.server.gameState.players.some((p) => p.name === trimmedName);
 
 				if (nameExists) {
 					break;
 				}
 
-				if (!message.name.trim()) {
+				if (trimmedName.length > 20) {
 					break;
 				}
 
-				if (message.name.trim().length > 20) {
-					break;
-				}
-
-				player.name = message.name.trim();
+				player.name = trimmedName;
 
 				const envelope: ServerMessage = {
 					type: MessageType.PLAYERUPDATE,

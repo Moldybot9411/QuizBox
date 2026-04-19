@@ -6,11 +6,13 @@ import {
 	MessageType,
 	ServerMessageSchema,
 	State,
+	type AnswerStats,
 	type ClientMessage,
 	type GameState,
 	type QuestionData,
 	type RoundResult,
 	type TriviaData,
+	type YourAnswerData,
 } from '$lib/shared/schema';
 
 type GameData = {
@@ -18,9 +20,10 @@ type GameData = {
 	socket?: PartySocket;
 	readonly isAdmin: boolean;
 	adminSecret?: string;
-	yourAnswer?: number;
+	yourAnswer?: YourAnswerData;
 	questionData?: QuestionData;
 	roundResult?: RoundResult;
+	lastAnswerStats?: AnswerStats;
 };
 
 export const gameData: GameData = $state({
@@ -79,7 +82,7 @@ export function initGame(
 					break;
 
 				case MessageType.YOUR_ANSWER:
-					gameData.yourAnswer = message.index;
+					gameData.yourAnswer = message;
 					break;
 
 				case MessageType.QUESTION_PREVIEW:
@@ -88,6 +91,18 @@ export function initGame(
 
 				case MessageType.ROUND_RESULT:
 					gameData.roundResult = message;
+					break;
+
+				case MessageType.ROUND_DIGEST:
+					gameData.state.scoreBoard = message.scoreBoard;
+					gameData.questionData = {
+						...message.questionData,
+						serverTime: 0,
+						revealTime: 0,
+						endTime: 0,
+						type: MessageType.QUESTION_PREVIEW,
+					};
+					gameData.lastAnswerStats = message.answerStats;
 					break;
 			}
 		} catch (error) {

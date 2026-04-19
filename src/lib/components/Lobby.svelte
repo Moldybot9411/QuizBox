@@ -3,10 +3,11 @@
 	import { onMount } from 'svelte';
 	import Card from './Card.svelte';
 	import { TriviaSchema, type TriviaData } from '$lib/shared/schema';
-	import { CircleAlert, Clipboard, Link, LoaderCircle, User } from '@lucide/svelte';
+	import { Clipboard, Link, LoaderCircle, User } from '@lucide/svelte';
 	import PlayerCard from './PlayerCard.svelte';
 	import { addToast } from './Toast.svelte';
 	import Button from './Button.svelte';
+	import { DEFAULT_ROUNDS, MAX_ROUNDS } from '$lib/shared/gameSettings';
 
 	type Props = {
 		roomId: string;
@@ -14,10 +15,8 @@
 
 	let { roomId }: Props = $props();
 
-	const maxRounds = 25;
-
 	let categories: { id: number; name: string }[] = $state([]);
-	let numRounds = $state(10);
+	let numRounds = $state(DEFAULT_ROUNDS);
 	let category = $state('any');
 	let difficulty = $state('any');
 	let questionType = $state('any');
@@ -29,15 +28,18 @@
 	$inspect(triviaData);
 
 	$effect(() => {
-		if (numRounds > maxRounds) {
-			numRounds = maxRounds;
+		if (numRounds > MAX_ROUNDS) {
+			numRounds = MAX_ROUNDS;
 		}
 	});
 
 	const opentdbUrl = $derived.by(() => {
 		const params = new URLSearchParams();
 
-		params.append('amount', numRounds && numRounds > 0 ? numRounds.toString() : String(10));
+		params.append(
+			'amount',
+			numRounds && numRounds > 0 ? numRounds.toString() : String(DEFAULT_ROUNDS)
+		);
 
 		if (category !== 'any') {
 			params.append('category', category);
