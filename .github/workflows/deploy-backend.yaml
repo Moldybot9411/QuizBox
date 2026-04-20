@@ -1,0 +1,31 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Create .env file
+        run: |
+          echo "ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}" >> .env
+          echo "SECRET_TOKEN=${{ secrets.SECRET_TOKEN }}" >> .env
+
+      - run: npx partykit deploy --with-vars
+        env:
+          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
+          PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN }}
