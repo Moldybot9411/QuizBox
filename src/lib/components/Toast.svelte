@@ -1,12 +1,12 @@
 <script module lang="ts">
-	import { CircleCheck, CircleX, Info, X } from '@lucide/svelte';
+	import { CircleCheck, CircleX, Info, TriangleAlert, X } from '@lucide/svelte';
 	import { nanoid } from 'nanoid';
 	import { fly, slide } from 'svelte/transition';
 
 	export type ToastMessage = {
 		id: string;
 		message: string;
-		type: 'success' | 'error' | 'info';
+		type: 'success' | 'error' | 'info' | 'warning';
 	};
 
 	let toasts: ToastMessage[] = $state([]);
@@ -27,17 +27,20 @@
 			transition:slide
 			class={[
 				'flex items-center justify-between gap-4 rounded-md p-4 text-balance text-gray-800 shadow-lg transition-all',
-				toast.type === 'success' && 'bg-green-200',
-				toast.type === 'error' && 'bg-red-200',
-				toast.type === 'info' && 'bg-blue-200',
+				toast.type === 'success' && 'bg-surface-success',
+				toast.type === 'error' && 'bg-surface-error',
+				toast.type === 'info' && 'bg-surface-info',
+				toast.type === 'warning' && 'bg-surface-warning',
 			]}>
-			<div class="self-start p-2">
+			<div class="self-start p-2 pr-0">
 				{#if toast.type === 'success'}
 					<CircleCheck size={24} />
 				{:else if toast.type === 'error'}
 					<CircleX size={24} />
 				{:else if toast.type === 'info'}
 					<Info size={24} />
+				{:else if toast.type === 'warning'}
+					<TriangleAlert size={24} />
 				{/if}
 			</div>
 
@@ -46,12 +49,7 @@
 			<button
 				aria-label="Close Toast Message"
 				onclick={() => (toasts = toasts.filter((el) => el.id !== toast.id))}
-				class={[
-					'cursor-pointer self-start rounded-md border p-2',
-					toast.type === 'success' && 'border-green-700 bg-green-300 hover:bg-green-400',
-					toast.type === 'error' && 'border-red-700 bg-red-300 hover:bg-red-400',
-					toast.type === 'info' && 'border-blue-700 bg-blue-300 hover:bg-blue-400',
-				]}>
+				class={['mt-1 cursor-pointer self-start rounded-md border p-2']}>
 				<X size={16} />
 			</button>
 		</div>

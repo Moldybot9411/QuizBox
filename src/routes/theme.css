@@ -2,6 +2,10 @@
 	--color-surface-dark: var(--bg-dark);
 	--color-surface: var(--bg);
 	--color-surface-light: var(--bg-light);
+	--color-surface-info: var(--bg-info);
+	--color-surface-success: var(--bg-success);
+	--color-surface-warning: var(--bg-warning);
+	--color-surface-error: var(--bg-error);
 
 	--color-text: var(--text);
 	--color-text-invert: var(--text-invert);
@@ -26,6 +30,10 @@
 	--bg-dark: hsl(145, 20%, 90%);
 	--bg: hsl(145, 20%, 95%);
 	--bg-light: hsl(145, 20%, 100%);
+	--bg-info: hsl(199, 100%, 40%);
+	--bg-success: hsl(99, 100%, 40%);
+	--bg-warning: hsl(54, 100%, 40%);
+	--bg-error: hsl(12, 100%, 40%);
 
 	--text: hsl(0, 0%, 5%);
 	--text-invert: hsl(0, 0%, 95%);
@@ -50,6 +58,10 @@
 	--bg-dark: hsl(90, 5%, 11%);
 	--bg: hsl(90, 5%, 16%);
 	--bg-light: hsl(90, 5%, 21%);
+	--bg-info: hsl(199, 100%, 65%);
+	--bg-success: hsl(99, 100%, 65%);
+	--bg-warning: hsl(54, 100%, 65%);
+	--bg-error: hsl(12, 100%, 65%);
 
 	--text: hsl(0, 0%, 95%);
 	--text-invert: hsl(0, 0%, 5%);

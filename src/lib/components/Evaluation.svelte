@@ -4,8 +4,14 @@
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { decode } from 'html-entities';
+	import ProgressBar from './ProgressBar.svelte';
 
 	let answerStats: { answer: string; numPicks: number }[] = $state([]);
+	let totalAnswers: number = $derived.by(() => {
+		let res = 0;
+		answerStats.forEach((el) => (res += el.numPicks));
+		return res;
+	});
 
 	$effect(() => {
 		if (gameData.lastAnswerStats) {
@@ -15,7 +21,7 @@
 				stats.push({ answer, numPicks: gameData.lastAnswerStats[answer] });
 			}
 
-			stats = stats.sort((_, b) => b.numPicks);
+			stats = stats.sort((a, b) => b.numPicks - a.numPicks);
 
 			answerStats = stats;
 		}
@@ -27,29 +33,32 @@
 </h1>
 
 <div class="mt-8 mb-2 flex w-full flex-col gap-2 md:flex-row">
-	<Card elevation="low" class="w-full">
+	<Card elevation="high" class="w-full">
 		<span class="flex items-center gap-2">
 			<h2 class="text-2xl font-bold">Result</h2>
 			{#if gameData.roundResult?.result === 'correct'}
-				<Check size={32} class="text-lime-500" />
+				<Check size={32} class="text-surface-success" />
 			{:else}
-				<X size={32} class="text-red-500" />
+				<X size={32} class="text-surface-error" />
 			{/if}
 		</span>
 		<div class="text-text-muted">
-			<div>
-				You answered in {(gameData.roundResult?.timeDelta ?? 0) / 1000}s!
-			</div>
+			{#if gameData.roundResult?.result !== 'no_answer'}
+				<span>
+					You answered in {(gameData.roundResult?.timeDelta ?? 0) / 1000}s!
+				</span>
+			{/if}
 
 			<div class="mt-2 grid grid-cols-2 gap-2">
 				{#each gameData.questionData?.answers as answer}
 					<Card
 						class={[
-							'text-center text-lg',
-							gameData.state.lastCorrectAnswer === answer && 'bg-lime-500!',
+							'flex items-center justify-center text-center text-lg text-balance text-text-muted',
+							gameData.state.lastCorrectAnswer === answer &&
+								'bg-surface-success! text-text-invert!',
 							gameData.yourAnswer?.text === answer &&
 								gameData.state.lastCorrectAnswer !== answer &&
-								'bg-red-500!',
+								'bg-surface-error! text-text-invert!',
 						]}>
 						{answer}
 					</Card>
@@ -58,24 +67,26 @@
 		</div>
 	</Card>
 
-	<Card elevation="low" class="w-full">
-		<div>
-			Options: {decode(gameData.questionData?.answers.join(' | '))}
-		</div>
-		<div>
-			Correct Answer: {decode(gameData.state.lastCorrectAnswer)}
-		</div>
-		<div>
-			Your Answer: {decode(gameData.yourAnswer?.text)}
+	<Card elevation="medium" class={['flex w-full items-center justify-center']}>
+		<div
+			class={[
+				'text-6xl font-bold',
+				(gameData.roundResult?.score ?? 0) > 0 ? 'text-surface-success' : 'text-surface-error',
+			]}>
+			{(gameData.roundResult?.score ?? 0) >= 0 && '+'}{gameData.roundResult?.score ?? 0}
 		</div>
 	</Card>
 </div>
 
 <Card elevation="low" class="mb-4">
-	<span class="text-2xl font-bold text-text-muted"> Stats: </span>
+	<span class="text-2xl font-bold"> Stats: </span>
 	{#each answerStats as answer}
-		<div>
-			{decode(answer.answer)}: {answer.numPicks}
+		<div class="mb-4 last:mb-0">
+			<span class="mb-1 flex w-full justify-between gap-4 text-text-muted">
+				<span>{decode(answer.answer)}</span>
+				<span>{totalAnswers ? ((answer.numPicks / totalAnswers) * 100).toFixed(2) : 0}%</span>
+			</span>
+			<ProgressBar color="info" value={totalAnswers ? (answer.numPicks / totalAnswers) * 100 : 0} />
 		</div>
 	{/each}
 </Card>
