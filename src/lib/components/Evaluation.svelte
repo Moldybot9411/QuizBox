@@ -60,7 +60,7 @@
 								gameData.state.lastCorrectAnswer !== answer &&
 								'bg-surface-error! text-text-invert!',
 						]}>
-						{answer}
+						{decode(answer)}
 					</Card>
 				{/each}
 			</div>
