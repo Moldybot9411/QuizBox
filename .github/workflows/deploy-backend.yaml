@@ -13,14 +13,12 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
       - run: npm ci
-      - run: npx partykit deploy
+      - run: npx partykit deploy --var ALLOWED_ORIGINS="${{ vars.ALLOWED_ORIGINS }}" --var SECRET_TOKEN="${{ secrets.SECRET_TOKEN }}"
         env:
           PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
           PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN }}
-          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
-          ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
