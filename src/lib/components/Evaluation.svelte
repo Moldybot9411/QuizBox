@@ -33,7 +33,7 @@
 </h1>
 
 <div class="mt-8 mb-2 flex w-full flex-col gap-2 md:flex-row">
-	<Card elevation="high" class="w-full">
+	<Card elevation="high" class="flex-3">
 		<span class="flex items-center gap-2">
 			<h2 class="text-2xl font-bold">Result</h2>
 			{#if gameData.roundResult?.result === 'correct'}
@@ -67,7 +67,7 @@
 		</div>
 	</Card>
 
-	<Card elevation="medium" class={['flex w-full items-center justify-center']}>
+	<Card elevation="medium" class={['flex flex-1 items-center justify-center p-8 md:p-16']}>
 		<div
 			class={[
 				'text-6xl font-bold',

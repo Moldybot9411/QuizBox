@@ -94,7 +94,6 @@ export function initGame(
 					break;
 
 				case MessageType.ROUND_DIGEST:
-					gameData.state.scoreBoard = message.scoreBoard;
 					gameData.questionData = {
 						...message.questionData,
 						serverTime: 0,
@@ -103,6 +102,11 @@ export function initGame(
 						type: MessageType.QUESTION_PREVIEW,
 					};
 					gameData.lastAnswerStats = message.answerStats;
+					break;
+
+				case MessageType.SCOREBOARD:
+					console.log(message);
+					gameData.state.scoreBoard = message.scoreBoard;
 					break;
 			}
 		} catch (error) {
