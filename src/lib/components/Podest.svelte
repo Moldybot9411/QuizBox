@@ -36,7 +36,7 @@
 	]}
 	{...others}>
 	<div
-		class="flex w-full flex-col items-center justify-center gap-2 text-center text-2xl font-bold text-nowrap">
+		class="flex w-full flex-col items-start justify-center gap-2 text-left text-2xl font-bold md:items-center md:text-center">
 		<span>
 			<Medal
 				size={64 / placement}
@@ -55,7 +55,7 @@
 
 	<div
 		class={[
-			'mt-auto flex w-full items-end justify-center py-2 text-6xl font-bold',
+			'mt-auto flex h-full w-full items-center justify-center py-2 text-5xl font-bold md:items-end md:text-6xl',
 			placement === 1 && 'text-gold',
 			placement === 2 && 'text-silver',
 			placement === 3 && 'text-bronze',
