@@ -14,6 +14,7 @@ import {
 	ROUND_NETWORK_BUFFER_DURATION,
 } from '../../src/lib/shared/gameSettings';
 
+
 export class PlayingState implements GameStateHandler {
 	constructor(private server: Server) {
 		this.question = this.server.getCurrentQuestion();
@@ -33,7 +34,7 @@ export class PlayingState implements GameStateHandler {
 	revealTime: number;
 	endTime: number;
 
-	timeoutId: NodeJS.Timeout | undefined;
+	timeoutId: ReturnType<typeof setTimeout> | undefined;
 
 	onConnect(connection: Connection): void {
 		const questionData: ServerMessage = {

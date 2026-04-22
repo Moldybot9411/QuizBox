@@ -25,6 +25,7 @@ export class EvaluationState implements GameStateHandler {
 
 		for (const conn of allConnections) {
 			this.sendResult(conn);
+			this.updateScoreboard(conn);
 		}
 
 		const digest = this.getRoundDigest();
@@ -109,15 +110,21 @@ export class EvaluationState implements GameStateHandler {
 		return Math.round(score);
 	}
 
-	sendResult(connection: Connection) {
+	getPlayerResult(connection: Connection): 'correct' | 'wrong' | 'no_answer' {
 		const playerAnswer = this.server.playerAnswers.get(connection.id);
 		const questionData = this.server.triviaData?.results[this.server.gameState.currentRound];
 
-		const playerAnswerStatus = playerAnswer
+		return playerAnswer
 			? questionData?.correct_answer === playerAnswer.answer
 				? 'correct'
 				: 'wrong'
 			: 'no_answer';
+	}
+
+	sendResult(connection: Connection) {
+		const playerAnswer = this.server.playerAnswers.get(connection.id);
+
+		const playerAnswerStatus = this.getPlayerResult(connection);
 		const score = this.calculateScore(connection.id);
 
 		const playerResult: ServerMessage = {
@@ -153,9 +160,24 @@ export class EvaluationState implements GameStateHandler {
 				question: this.server.getCurrentQuestion(),
 				answers: this.server.getCurrentAnswers(),
 			},
-			scoreBoard: this.server.gameState.scoreBoard,
 			answerStats,
 			lastCorrectAnswer: triviaData?.correct_answer ?? '',
+		};
+	}
+
+	updateScoreboard(connection: Connection) {
+		const score = this.calculateScore(connection.id);
+		const name = this.server.gameState.players.find((el) => el.id === connection.id)?.name;
+		const previousEntry = this.server.gameState.scoreBoard[connection.id];
+		const playerResult = this.getPlayerResult(connection);
+
+		if (!name) return;
+
+		this.server.gameState.scoreBoard[connection.id] = {
+			totalScore: (previousEntry?.totalScore ?? 0) + score,
+			name,
+			numCorrectAnswers:
+				(previousEntry?.numCorrectAnswers ?? 0) + (playerResult === 'correct' ? 1 : 0),
 		};
 	}
 }

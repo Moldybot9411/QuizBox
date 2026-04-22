@@ -24,6 +24,10 @@
 	--color-secondary-hover: var(--secondary-hover);
 
 	--color-inset: var(--inset-shadow);
+
+	--color-gold: var(--gold);
+	--color-silver: var(--silver);
+	--color-bronze: var(--bronze);
 }
 
 :root {
@@ -52,6 +56,10 @@
 	--secondary-hover: hsl(145, 13%, 81%);
 
 	--inset-shadow: hsl(218, 12%, 64%);
+
+	--gold: hsl(45, 100%, 47%);
+	--silver: hsl(159, 6%, 44%);
+	--bronze: hsl(25, 98%, 43%);
 }
 
 .dark {
@@ -78,4 +86,8 @@
 	--secondary-hover: hsl(145, 13%, 5%);
 
 	--inset-shadow: hsl(0, 0%, 0%);
+
+	--gold: hsl(48, 100%, 50%);
+	--silver: hsl(165, 20%, 84%);
+	--bronze: hsl(25, 75%, 56%);
 }

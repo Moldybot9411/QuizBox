@@ -18,7 +18,8 @@ export enum MessageType {
 	YOUR_ANSWER,
 	QUESTION_PREVIEW,
 	ROUND_RESULT, // Your own result (Answer, Score)
-	ROUND_DIGEST, // Correct Answer, Scoreboard
+	ROUND_DIGEST, // Correct Answer
+	SCOREBOARD,
 }
 
 // Action Message ( Client -> Server )
@@ -111,14 +112,18 @@ const RoundResultMessageSchema = z.object({
 });
 export type RoundResult = z.infer<typeof RoundResultMessageSchema>;
 
-const RoundDigestMessageschema = z.object({
+const RoundDigestMessageSchema = z.object({
 	type: z.literal(MessageType.ROUND_DIGEST),
-	scoreBoard: GameStateSchema.shape.scoreBoard,
 	questionData: QuestionPreviewMessageScheme.pick({ question: true, answers: true }),
 	answerStats: GameStateSchema.shape.lastAnswerStats,
 	lastCorrectAnswer: z.string(),
 });
-export type AnswerStats = z.infer<typeof RoundDigestMessageschema.shape.answerStats>;
+export type AnswerStats = z.infer<typeof RoundDigestMessageSchema.shape.answerStats>;
+
+const ScoreboardMessageSchema = z.object({
+	type: z.literal(MessageType.SCOREBOARD),
+	scoreBoard: GameStateSchema.shape.scoreBoard,
+});
 
 export const ServerMessageSchema = z.discriminatedUnion('type', [
 	SyncMessageSchema,
@@ -129,7 +134,8 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
 	YourAnswerMessageSchema,
 	QuestionPreviewMessageScheme,
 	RoundResultMessageSchema,
-	RoundDigestMessageschema,
+	RoundDigestMessageSchema,
+	ScoreboardMessageSchema,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
