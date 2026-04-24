@@ -1,34 +1,64 @@
-import { HatGlasses, Shield, Timer, type LucideIcon } from '@lucide/svelte';
-import { ItemType as ItemTypeEnum, type ItemType } from './schema';
+/**
+ * The Scoreboard gets divided into 3 parts: top, middle and bottom.
+ *
+ * - Top players get more defensive items.
+ * - Middle players mostly get items to attack the top players and occasional score boosters.
+ * - Bottom players mostly get score boosters and occasionally items to attack the top players.
+ */
 
-export type PowerupItem = {
-	type: ItemType;
-	title: string;
-	description: string;
-	icon: LucideIcon;
-	color: string;
+import { DOCTOR_STEAL_TIME, SCRAMBLE_INTERVAL } from './gameSettings';
+
+export enum ItemType {
+	SHIELD,
+	SQUID,
+	SCRAMBLE,
+	DR_WHO,
+	MIRROR,
+	ALL_IN,
+	FIFTY_FIFTY,
+	HIVEMIND,
+}
+
+export type PowerupItems = {
+	[key in ItemType]: {
+		title: string;
+		description: string;
+	};
 };
 
-export const PowerupItems: PowerupItem[] = [
-	{
-		type: ItemTypeEnum.DOUBLETIMER,
-		title: '2x Timer',
-		description: 'Make the time of a player of your choice go by twice as fast',
-		icon: Timer,
-		color: 'lightgreen',
-	},
-	{
-		type: ItemTypeEnum.STEALPOINTS,
-		title: 'Steal Points',
-		description: 'Steal a percentage of points from the best performing player',
-		icon: HatGlasses,
-		color: 'hotpink',
-	},
-	{
-		type: ItemTypeEnum.SHIELD,
+export const Items: PowerupItems = {
+	[ItemType.SHIELD]: {
 		title: 'Shield',
-		description: 'Protect yourself from the next attack',
-		icon: Shield,
-		color: 'turquoise',
+		description: 'Blocks one incoming attack. Breaks automatically after one round.',
 	},
-];
+	[ItemType.SQUID]: {
+		title: 'Squid',
+		description:
+			"Splatter ink over the 1st place player's question. They must wipe it off to read the question!",
+	},
+	[ItemType.SCRAMBLE]: {
+		title: 'Scramble',
+		description: `Shuffles the answer options for a player of your choice every ${2000 / 1000} seconds.`,
+	},
+	[ItemType.DR_WHO]: {
+		title: 'The Doctor',
+		description: `Steals ${3000 / 1000} seconds from a targeted player and adds them to your own timer.`,
+	},
+	[ItemType.MIRROR]: {
+		title: 'Mirror',
+		description: 'Reflects the next incoming attack directly back at the sender',
+	},
+	[ItemType.ALL_IN]: {
+		title: 'All In',
+		description:
+			'High risk, high reward! Earn 2x points for a correct answer, but lose points if you are wrong.',
+	},
+	[ItemType.FIFTY_FIFTY]: {
+		title: '50/50',
+		description: 'Eliminates half of the incorrect answer options.',
+	},
+	[ItemType.HIVEMIND]: {
+		title: 'Hivemind',
+		description: 'Reveals the answers currently selected by all other players.',
+	},
+};

@@ -31,7 +31,7 @@ export class LobbyState implements GameStateHandler {
 
 				this.server.gameState.numRounds = message.triviaData.results.length;
 
-				this.server.transitionTo(State.PLAYING);
+				this.server.transitionTo(State.ITEM_PULL);
 				break;
 
 			case ActionMessage.CHANGE_NAME:

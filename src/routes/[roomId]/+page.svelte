@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Evaluation from '$lib/components/Evaluation.svelte';
+	import ItemPull from '$lib/components/ItemPull.svelte';
 	import Lobby from '$lib/components/Lobby.svelte';
 	import Playing from '$lib/components/Playing.svelte';
 	import PostGame from '$lib/components/PostGame.svelte';
@@ -20,6 +21,8 @@
 
 {#if gameData.state.state === State.LOBBY}
 	<Lobby roomId={params.roomId} />
+{:else if gameData.state.state === State.ITEM_PULL}
+	<ItemPull />
 {:else if gameData.state.state === State.PLAYING}
 	<Playing />
 {:else if gameData.state.state === State.EVALUATION}

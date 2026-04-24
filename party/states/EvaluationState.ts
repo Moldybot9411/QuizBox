@@ -69,13 +69,6 @@ export class EvaluationState implements GameStateHandler {
 				this.server.transitionTo(State.POSTGAME);
 
 				break;
-			case ActionMessage.BACK_TO_LOBBY:
-				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
-
-				this.server.softReset();
-
-				this.server.broadcastSync();
-				break;
 		}
 	}
 

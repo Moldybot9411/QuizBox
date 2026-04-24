@@ -3,6 +3,7 @@ import z from 'zod';
 // General state the game is currently in
 export enum State {
 	LOBBY,
+	ITEM_PULL,
 	PLAYING,
 	EVALUATION,
 	POSTGAME,
@@ -33,12 +34,6 @@ export enum ActionMessage {
 	NEXT_ROUND,
 }
 
-export enum ItemType {
-	DOUBLETIMER,
-	STEALPOINTS,
-	SHIELD,
-}
-
 export const GameStateSchema = z.object({
 	state: z.enum(State),
 	createdAt: z.number(),
@@ -60,6 +55,7 @@ export const GameStateSchema = z.object({
 });
 
 export type GameState = z.infer<typeof GameStateSchema>;
+export type Player = z.infer<typeof GameStateSchema.shape.players.element>;
 
 const SyncMessageSchema = z.object({
 	type: z.literal(MessageType.SYNC),
