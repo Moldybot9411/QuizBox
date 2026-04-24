@@ -3,30 +3,10 @@
 	import { House } from '@lucide/svelte';
 	import Button from './Button.svelte';
 	import Podest from './Podest.svelte';
-	import ProgressBar from './ProgressBar.svelte';
+	import Scoreboard from './Scoreboard.svelte';
+	import { getSortedScoreboard } from '$lib/util.svelte';
 
-	let scoreBoard = $derived(gameData.state.scoreBoard);
-
-	let scoreBoardArray = $derived.by(() => {
-		let res: { name: string; totalScore: number; numCorrectAnswers: number }[] = [];
-
-		for (const id of Object.keys(scoreBoard)) {
-			res.push({
-				name: scoreBoard[id].name,
-				totalScore: scoreBoard[id].totalScore,
-				numCorrectAnswers: scoreBoard[id].numCorrectAnswers,
-			});
-		}
-
-		res = res.sort(
-			(a, b) =>
-				b.totalScore - a.totalScore ||
-				b.numCorrectAnswers - a.numCorrectAnswers ||
-				a.name.localeCompare(b.name)
-		);
-
-		return res;
-	});
+	let scoreBoardArray = getSortedScoreboard();
 </script>
 
 <div class="mt-20 flex h-100 flex-col items-center justify-center gap-2 md:flex-row md:items-end">
@@ -69,39 +49,8 @@
 
 {#if scoreBoardArray.length >= 4}
 	<hr class="my-4 border-border" />
-	<div class="mb-2 text-2xl font-bold">The Rest</div>
 
-	<div class="highlight overflow-hidden rounded-md border border-border">
-		<table class="w-full min-w-max table-auto rounded-md text-left">
-			<thead>
-				<tr class="border-b border-border bg-surface">
-					<th class="p-2">Name</th>
-					<th class="p-2">Score</th>
-					<th class="p-2">Correct Answers</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each scoreBoardArray.slice(3) as player}
-					{@const percentage = player.numCorrectAnswers
-						? (player.numCorrectAnswers / gameData.state.numRounds) * 100
-						: 0}
-					<tr class="border-b border-border bg-surface-light text-text-muted last:border-b-0">
-						<td class="p-2">
-							{player.name}
-						</td>
-						<td class="p-2">
-							{player.totalScore}
-						</td>
-						<td class="p-2">
-							<ProgressBar
-								color={percentage >= 50 ? 'success' : percentage > 20 ? 'warning' : 'error'}
-								value={percentage} />
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
+	<Scoreboard scoreData={scoreBoardArray.slice(3)} startPlacementAt={4} />
 {/if}
 
 {#if !gameData.isAdmin}
