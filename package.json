@@ -33,6 +33,7 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^1.7.0",
+		"@neoconfetti/svelte": "^2.2.2",
 		"@scaleway/random-name": "^5.1.4",
 		"html-entities": "^2.6.0",
 		"nanoid": "^5.1.7",

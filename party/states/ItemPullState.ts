@@ -18,8 +18,8 @@ export class ItemPullState implements GameStateHandler {
 			this.orderedScoreBoard.push({
 				id: player.id,
 				name: player.name,
-				score: playerData.totalScore ?? 0,
-				numCorrectAnswers: playerData.numCorrectAnswers ?? 0,
+				score: playerData?.totalScore ?? 0,
+				numCorrectAnswers: playerData?.numCorrectAnswers ?? 0,
 				numItems: playerItemCount,
 			});
 		}
