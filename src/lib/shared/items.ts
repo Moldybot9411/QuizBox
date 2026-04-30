@@ -38,11 +38,11 @@ export const Items: PowerupItems = {
 	},
 	[ItemType.SCRAMBLE]: {
 		title: 'Scramble',
-		description: `Shuffles the answer options for a player of your choice every ${2000 / 1000} seconds.`,
+		description: `Shuffles the answer options for a player of your choice every ${SCRAMBLE_INTERVAL / 1000} seconds.`,
 	},
 	[ItemType.DR_WHO]: {
 		title: 'The Doctor',
-		description: `Steals ${3000 / 1000} seconds from a targeted player and adds them to your own timer.`,
+		description: `Steals ${DOCTOR_STEAL_TIME / 1000} seconds from a targeted player and adds them to your own timer.`,
 	},
 	[ItemType.MIRROR]: {
 		title: 'Mirror',

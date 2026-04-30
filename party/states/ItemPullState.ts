@@ -1,8 +1,8 @@
 import { Connection } from 'partykit/server';
-import { ClientMessage } from '../../src/lib/shared/schema';
+import { ClientMessage, MessageType, ServerMessage } from '../../src/lib/shared/schema';
 import Server from '../server';
 import { GameStateHandler } from './GameStateHandler';
-import { ItemBalancing } from '../../src/lib/shared/gameSettings';
+import { ItemBalancing } from '../../src/lib/shared/itemBalancing';
 import { ItemType } from '../../src/lib/shared/items';
 
 export class ItemPullState implements GameStateHandler {
@@ -51,6 +51,10 @@ export class ItemPullState implements GameStateHandler {
 		}
 	}
 
+	onConnect(connection: Connection): void {
+		this.giveItem(connection);
+	}
+
 	onMessage(message: ClientMessage, sender: Connection): void {
 		return;
 	}
@@ -73,16 +77,24 @@ export class ItemPullState implements GameStateHandler {
 			pool = ItemBalancing.lootTables.mid;
 		}
 
-		const totalItemWeights = Object.values(pool).reduce((acc, weight) => (acc += weight), 0);
+		const totalItemWeights = Object.values(pool).reduce((acc, weight) => acc + weight, 0);
 		let randomNum = Math.random() * totalItemWeights;
 
-		let itemToGive: ItemType;
+		let itemToGive: ItemType = ItemType.SHIELD;
 		for (const [item, weight] of Object.entries(pool)) {
-			// randomNum -= weight;
-			// if (randomNum <= 0) {
-			// 	itemToGive = item as ItemType;
-			// }
-			console.log(item);
+			randomNum -= weight;
+			if (randomNum <= 0) {
+				itemToGive = parseInt(item) as ItemType;
+				console.log(itemToGive);
+				break;
+			}
 		}
+
+		const envelope: ServerMessage = {
+			type: MessageType.ITEM_PULL_ITEM,
+			yourItem: itemToGive,
+		};
+
+		conn.send(JSON.stringify(envelope));
 	}
 }

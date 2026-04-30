@@ -3,6 +3,10 @@
 	import { resolve } from '$app/paths';
 	import Button from './Button.svelte';
 	import { Ticket } from '@lucide/svelte';
+	import ItemCard from './ItemCard.svelte';
+	import { gameData, sendOpenChest } from '$lib/gameStore.svelte';
+	import { ItemIcons } from '$lib/itemIcons';
+	import { Items } from '$lib/shared/items';
 
 	const confettiDuration = 2000;
 
@@ -22,10 +26,19 @@
 	function openChest() {
 		confettiVisible = true;
 		chestOpen = true;
+
+		sendOpenChest();
 	}
 </script>
 
 <div class="flex min-h-[calc(100dvh-2rem)] w-full flex-col items-center justify-center p-8">
+	{#if chestOpen}
+		<ItemCard
+			name={Items[gameData.itemPullData.yourItem].title}
+			icon={ItemIcons[gameData.itemPullData.yourItem]}
+			color="primary" />
+	{/if}
+
 	{#if confettiVisible}
 		<div
 			class="fade-out-wrapper mx-auto w-full"

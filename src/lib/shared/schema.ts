@@ -1,4 +1,5 @@
 import z from 'zod';
+import { ItemType } from './items';
 
 // General state the game is currently in
 export enum State {
@@ -21,6 +22,8 @@ export enum MessageType {
 	ROUND_RESULT, // Your own result (Answer, Score)
 	ROUND_DIGEST, // Correct Answer
 	SCOREBOARD,
+	ITEM_PULL_READY,
+	ITEM_PULL_ITEM,
 }
 
 // Action Message ( Client -> Server )
@@ -32,6 +35,7 @@ export enum ActionMessage {
 	CHANGE_NAME,
 	SUBMIT_ANSWER,
 	NEXT_ROUND,
+	PULL_STATE_READY,
 }
 
 export const GameStateSchema = z.object({
@@ -121,6 +125,26 @@ const ScoreboardMessageSchema = z.object({
 	scoreBoard: GameStateSchema.shape.scoreBoard,
 });
 
+// ====== Item Pull State ======
+const ItemPullReadyMessageSchema = z.object({
+	type: z.literal(MessageType.ITEM_PULL_READY),
+	readyPlayers: z.array(GameStateSchema.shape.players.element),
+});
+
+const ItemPullItemMessageSchema = z.object({
+	type: z.literal(MessageType.ITEM_PULL_ITEM),
+	yourItem: z.enum(ItemType),
+});
+
+const ItemPullCombinedSchema = z
+	.object({
+		...ItemPullReadyMessageSchema.shape,
+		...ItemPullItemMessageSchema.shape,
+	})
+	.omit({ type: true });
+export type ItemPullData = z.infer<typeof ItemPullCombinedSchema>;
+// ============
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
 	SyncMessageSchema,
 	PlayerCountMessageSchema,
@@ -132,6 +156,8 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
 	RoundResultMessageSchema,
 	RoundDigestMessageSchema,
 	ScoreboardMessageSchema,
+	ItemPullReadyMessageSchema,
+	ItemPullItemMessageSchema,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
@@ -201,6 +227,10 @@ const NextRoundActionMessage = z.object({
 	action: z.literal(ActionMessage.NEXT_ROUND),
 });
 
+const ChestOpenedActionMessage = z.object({
+	action: z.literal(ActionMessage.PULL_STATE_READY),
+});
+
 export const ClientMessageSchema = z.discriminatedUnion('action', [
 	StartGameActionMessage,
 	IncreaseCounterActionMessage,
@@ -209,6 +239,7 @@ export const ClientMessageSchema = z.discriminatedUnion('action', [
 	ChangeNameActionMessage,
 	SubmitAnswerActionMessage,
 	NextRoundActionMessage,
+	ChestOpenedActionMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

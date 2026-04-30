@@ -9,11 +9,13 @@ import {
 	type AnswerStats,
 	type ClientMessage,
 	type GameState,
+	type ItemPullData,
 	type QuestionData,
 	type RoundResult,
 	type TriviaData,
 	type YourAnswerData,
 } from '$lib/shared/schema';
+import { ItemType } from './shared/items';
 
 type GameData = {
 	state: GameState;
@@ -24,6 +26,7 @@ type GameData = {
 	questionData?: QuestionData;
 	roundResult?: RoundResult;
 	lastAnswerStats?: AnswerStats;
+	itemPullData: ItemPullData;
 };
 
 export const gameData: GameData = $state({
@@ -33,6 +36,10 @@ export const gameData: GameData = $state({
 		return !!(this.socket && this.state?.adminId && this.socket.id === this.state.adminId);
 	},
 	adminSecret: undefined as string | undefined,
+	itemPullData: {
+		readyPlayers: [],
+		yourItem: ItemType.SHIELD,
+	},
 });
 
 export function initGame(
@@ -105,8 +112,15 @@ export function initGame(
 					break;
 
 				case MessageType.SCOREBOARD:
-					console.log(message);
 					gameData.state.scoreBoard = message.scoreBoard;
+					break;
+
+				case MessageType.ITEM_PULL_READY:
+					gameData.itemPullData.readyPlayers = message.readyPlayers;
+					break;
+
+				case MessageType.ITEM_PULL_ITEM:
+					gameData.itemPullData.yourItem = message.yourItem;
 					break;
 			}
 		} catch (error) {
@@ -189,6 +203,14 @@ export function submitAnswer(index: number) {
 export function nextRound() {
 	const obj: ClientMessage = {
 		action: ActionMessage.NEXT_ROUND,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function sendOpenChest() {
+	const obj: ClientMessage = {
+		action: ActionMessage.PULL_STATE_READY,
 	};
 
 	gameData.socket?.send(JSON.stringify(obj));
