@@ -62,7 +62,7 @@ export class EvaluationState implements GameStateHandler {
 				if (this.server.gameState.currentRound < numRounds - 1) {
 					this.server.gameState.currentRound++;
 
-					this.server.transitionTo(State.PLAYING);
+					this.server.transitionTo(State.ITEM_PULL);
 					break;
 				}
 

@@ -39,6 +39,7 @@ export const gameData: GameData = $state({
 	itemPullData: {
 		readyPlayers: [],
 		yourItem: ItemType.SHIELD,
+		inventory: [],
 	},
 });
 
@@ -115,11 +116,16 @@ export function initGame(
 					gameData.state.scoreBoard = message.scoreBoard;
 					break;
 
-				case MessageType.ITEM_PULL_READY:
+				case MessageType.INVENTORY_SYNC:
+					gameData.itemPullData.inventory = message.inventory;
+					console.log(message);
+					break;
+
+				case MessageType.PULL_STATE_READY:
 					gameData.itemPullData.readyPlayers = message.readyPlayers;
 					break;
 
-				case MessageType.ITEM_PULL_ITEM:
+				case MessageType.PULL_STATE_ITEM:
 					gameData.itemPullData.yourItem = message.yourItem;
 					break;
 			}
@@ -210,7 +216,16 @@ export function nextRound() {
 
 export function sendOpenChest() {
 	const obj: ClientMessage = {
-		action: ActionMessage.PULL_STATE_READY,
+		action: ActionMessage.PULL_STATE_PLAYER_READY,
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function sendPullStateContinue() {
+	const obj: ClientMessage = {
+		action: ActionMessage.PULL_STATE_CONTINUE,
+		adminSecret: gameData.adminSecret ?? '',
 	};
 
 	gameData.socket?.send(JSON.stringify(obj));

@@ -14,7 +14,7 @@
 
 <div
 	class={[
-		'card-wrapper elevation-high flex h-50 w-35 flex-col items-center justify-center gap-8 rounded-lg border-3 bg-surface-light p-2',
+		'card-wrapper elevation-high flex min-h-50 w-35 flex-col items-center justify-center gap-8 rounded-lg border-3 bg-surface-light p-2',
 		color === 'primary' && 'border-primary text-primary',
 		color === 'info' && 'border-surface-info text-surface-info',
 		color === 'error' && 'border-surface-error text-surface-error',
@@ -22,8 +22,8 @@
 		color === 'success' && 'border-surface-success text-surface-success',
 	]}
 	{...others}>
-	<span class="text-4xl font-bold">{name}</span>
-	<IconComponent size={64} />
+	<span class="text-2xl font-bold">{name}</span>
+	<IconComponent size={50} />
 </div>
 
 <style>

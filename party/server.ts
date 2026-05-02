@@ -87,6 +87,7 @@ export default class Server implements Party.Server {
 
 		connection.send(JSON.stringify(sync));
 		this.room.broadcast(JSON.stringify(playerUpdate), [connection.id]);
+		this.syncInventory(connection);
 	}
 
 	async onClose(connection: Party.Connection): Promise<void> {
@@ -295,5 +296,14 @@ export default class Server implements Party.Server {
 
 	public getCurrentTriviaData() {
 		return this.triviaData?.results[this.gameState.currentRound];
+	}
+
+	public syncInventory(conn: Party.Connection) {
+		const inventorySync: ServerMessage = {
+			type: MessageType.INVENTORY_SYNC,
+			inventory: this.playerItems.get(conn.id) ?? [],
+		};
+
+		conn.send(JSON.stringify(inventorySync));
 	}
 }

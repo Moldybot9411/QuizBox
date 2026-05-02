@@ -58,7 +58,7 @@ export const Items: PowerupItems = {
 		description: 'Eliminates half of the incorrect answer options.',
 	},
 	[ItemType.HIVEMIND]: {
-		title: 'Hivemind',
+		title: 'Hive Mind',
 		description: 'Reveals the answers currently selected by all other players.',
 	},
 };

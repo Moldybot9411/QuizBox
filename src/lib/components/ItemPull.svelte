@@ -2,17 +2,20 @@
 	import { confetti } from '@neoconfetti/svelte';
 	import { resolve } from '$app/paths';
 	import Button from './Button.svelte';
-	import { Ticket } from '@lucide/svelte';
+	import { CircleOff, MoveRight, Ticket } from '@lucide/svelte';
 	import ItemCard from './ItemCard.svelte';
-	import { gameData, sendOpenChest } from '$lib/gameStore.svelte';
-	import { ItemIcons } from '$lib/itemIcons';
+	import { gameData, sendOpenChest, sendPullStateContinue } from '$lib/gameStore.svelte';
+	import { ItemCosmeticData } from '$lib/itemIcons';
 	import { Items } from '$lib/shared/items';
+	import Card from './Card.svelte';
+	import InventoryDrawer from './InventoryDrawer.svelte';
 
 	const confettiDuration = 2000;
 
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
 	let confettiVisible = $state(false);
 	let chestOpen = $state(false);
+	let inventoryFull = $derived(gameData.itemPullData.yourItem === undefined);
 
 	$effect(() => {
 		if (confettiVisible) {
@@ -32,11 +35,12 @@
 </script>
 
 <div class="flex min-h-[calc(100dvh-2rem)] w-full flex-col items-center justify-center p-8">
-	{#if chestOpen}
+	<!-- Not using 'inventoryFull' here because of type checking -->
+	{#if chestOpen && gameData.itemPullData.yourItem !== undefined}
 		<ItemCard
 			name={Items[gameData.itemPullData.yourItem].title}
-			icon={ItemIcons[gameData.itemPullData.yourItem]}
-			color="primary" />
+			icon={ItemCosmeticData[gameData.itemPullData.yourItem].icon}
+			color={ItemCosmeticData[gameData.itemPullData.yourItem].color} />
 	{/if}
 
 	{#if confettiVisible}
@@ -56,10 +60,42 @@
 	{#if chestOpen}
 		<img src={resolve('/chest_open.png')} alt="Closed Open" class="size-80" />
 	{:else}
-		<img src={resolve('/chest_closed.png')} alt="Closed Chest" class="size-80" />
-		<Button label="Open Chest" onclick={openChest} icon={Ticket} />
+		{#if inventoryFull}
+			<Card elevation="high" class="bg-surface-error text-2xl font-bold">Inventory Full</Card>
+		{/if}
+		<div class="relative size-80">
+			<img
+				src={resolve('/chest_closed.png')}
+				alt="Closed Chest"
+				class="absolute top-0 left-0 size-80" />
+			{#if inventoryFull}
+				<CircleOff class="absolute top-22 left-15 size-50 text-surface-error" />
+			{/if}
+		</div>
+		{#if !inventoryFull}
+			<Button label="Open Chest" variant="secondary" onclick={openChest} icon={Ticket} />
+		{/if}
 	{/if}
 </div>
+
+<div class="fixed right-4 bottom-4 flex flex-col gap-2">
+	<Card elevation="low" class="py-2!">
+		<span class="font-bold"
+			>{gameData.itemPullData.readyPlayers.length}/{gameData.state.playerCount}</span>
+		Players Ready
+	</Card>
+	{#if gameData.isAdmin}
+		<Button
+			label="Continue"
+			icon={MoveRight}
+			disabled={gameData.itemPullData.readyPlayers.length < gameData.state.playerCount}
+			onclick={sendPullStateContinue} />
+	{/if}
+</div>
+
+{#if chestOpen || inventoryFull}
+	<InventoryDrawer />
+{/if}
 
 <style>
 	.fade-out-wrapper {

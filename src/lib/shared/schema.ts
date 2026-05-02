@@ -22,8 +22,9 @@ export enum MessageType {
 	ROUND_RESULT, // Your own result (Answer, Score)
 	ROUND_DIGEST, // Correct Answer
 	SCOREBOARD,
-	ITEM_PULL_READY,
-	ITEM_PULL_ITEM,
+	INVENTORY_SYNC,
+	PULL_STATE_READY,
+	PULL_STATE_ITEM,
 }
 
 // Action Message ( Client -> Server )
@@ -35,7 +36,8 @@ export enum ActionMessage {
 	CHANGE_NAME,
 	SUBMIT_ANSWER,
 	NEXT_ROUND,
-	PULL_STATE_READY,
+	PULL_STATE_PLAYER_READY,
+	PULL_STATE_CONTINUE,
 }
 
 export const GameStateSchema = z.object({
@@ -125,21 +127,31 @@ const ScoreboardMessageSchema = z.object({
 	scoreBoard: GameStateSchema.shape.scoreBoard,
 });
 
+const InventorySyncScheme = z.object({
+	type: z.literal(MessageType.INVENTORY_SYNC),
+	inventory: z.array(
+		z.object({
+			itemType: z.enum(ItemType),
+		})
+	),
+});
+
 // ====== Item Pull State ======
 const ItemPullReadyMessageSchema = z.object({
-	type: z.literal(MessageType.ITEM_PULL_READY),
+	type: z.literal(MessageType.PULL_STATE_READY),
 	readyPlayers: z.array(GameStateSchema.shape.players.element),
 });
 
 const ItemPullItemMessageSchema = z.object({
-	type: z.literal(MessageType.ITEM_PULL_ITEM),
-	yourItem: z.enum(ItemType),
+	type: z.literal(MessageType.PULL_STATE_ITEM),
+	yourItem: z.enum(ItemType).optional(),
 });
 
 const ItemPullCombinedSchema = z
 	.object({
 		...ItemPullReadyMessageSchema.shape,
 		...ItemPullItemMessageSchema.shape,
+		...InventorySyncScheme.shape,
 	})
 	.omit({ type: true });
 export type ItemPullData = z.infer<typeof ItemPullCombinedSchema>;
@@ -156,6 +168,7 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
 	RoundResultMessageSchema,
 	RoundDigestMessageSchema,
 	ScoreboardMessageSchema,
+	InventorySyncScheme,
 	ItemPullReadyMessageSchema,
 	ItemPullItemMessageSchema,
 ]);
@@ -228,7 +241,12 @@ const NextRoundActionMessage = z.object({
 });
 
 const ChestOpenedActionMessage = z.object({
-	action: z.literal(ActionMessage.PULL_STATE_READY),
+	action: z.literal(ActionMessage.PULL_STATE_PLAYER_READY),
+});
+
+const PullStateContinueActionMessage = z.object({
+	action: z.literal(ActionMessage.PULL_STATE_CONTINUE),
+	adminSecret: z.string(),
 });
 
 export const ClientMessageSchema = z.discriminatedUnion('action', [
@@ -240,6 +258,7 @@ export const ClientMessageSchema = z.discriminatedUnion('action', [
 	SubmitAnswerActionMessage,
 	NextRoundActionMessage,
 	ChestOpenedActionMessage,
+	PullStateContinueActionMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

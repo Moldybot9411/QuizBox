@@ -11,17 +11,44 @@ import {
 } from '@lucide/svelte';
 import { ItemType } from './shared/items';
 
-export type PowerupItemIcons = {
-	[key in ItemType]: LucideIcon;
+export type PowerupItemCosmetics = {
+	[key in ItemType]: {
+		icon: LucideIcon;
+		color: 'primary' | 'info' | 'error' | 'warning' | 'success';
+	};
 };
 
-export const ItemIcons: PowerupItemIcons = {
-	[ItemType.SHIELD]: Shield,
-	[ItemType.SQUID]: Bubbles,
-	[ItemType.SCRAMBLE]: Replace,
-	[ItemType.DR_WHO]: Hourglass,
-	[ItemType.MIRROR]: MirrorRound,
-	[ItemType.ALL_IN]: HandCoins,
-	[ItemType.FIFTY_FIFTY]: CircleSlash2,
-	[ItemType.HIVEMIND]: Hexagon,
+export const ItemCosmeticData: PowerupItemCosmetics = {
+	[ItemType.SHIELD]: {
+		icon: Shield,
+		color: 'info',
+	},
+	[ItemType.SQUID]: {
+		icon: Bubbles,
+		color: 'success',
+	},
+	[ItemType.SCRAMBLE]: {
+		icon: Replace,
+		color: 'success',
+	},
+	[ItemType.DR_WHO]: {
+		icon: Hourglass,
+		color: 'success',
+	},
+	[ItemType.MIRROR]: {
+		icon: MirrorRound,
+		color: 'info',
+	},
+	[ItemType.ALL_IN]: {
+		icon: HandCoins,
+		color: 'error',
+	},
+	[ItemType.FIFTY_FIFTY]: {
+		icon: CircleSlash2,
+		color: 'error',
+	},
+	[ItemType.HIVEMIND]: {
+		icon: Hexagon,
+		color: 'error',
+	},
 };
