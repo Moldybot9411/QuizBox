@@ -1,6 +1,6 @@
 # QuizBox
 
-**Play Here**: https://moldybot9411.github.io/QuizBox
+**Play Here**: https://quizbox.live
 
 ## Running the project locally
 
