@@ -14,7 +14,6 @@ import {
 	ROUND_NETWORK_BUFFER_DURATION,
 } from '../../src/lib/shared/gameSettings';
 
-
 export class PlayingState implements GameStateHandler {
 	constructor(private server: Server) {
 		this.question = this.server.getCurrentQuestion();
@@ -88,14 +87,6 @@ export class PlayingState implements GameStateHandler {
 
 	onMessage(message: ClientMessage, sender: Connection): void {
 		switch (message.action) {
-			case ActionMessage.BACK_TO_LOBBY:
-				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
-
-				this.server.softReset();
-
-				this.server.broadcastSync();
-				break;
-
 			case ActionMessage.SUBMIT_ANSWER:
 				if (this.server.playerAnswers.get(sender.id)) break;
 

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { base, resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { PUBLIC_PARTYKIT_HOST } from '$env/static/public';
 	import Button from '$lib/components/Button.svelte';
 	import Card from '$lib/components/Card.svelte';
 	import { doesRoomExist } from '$lib/gameStore.svelte';
-	import { CirclePlus, Moon } from '@lucide/svelte';
+	import { CirclePlus } from '@lucide/svelte';
 
 	let errorMessage = $state('');
 

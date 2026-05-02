@@ -62,19 +62,12 @@ export class EvaluationState implements GameStateHandler {
 				if (this.server.gameState.currentRound < numRounds - 1) {
 					this.server.gameState.currentRound++;
 
-					this.server.transitionTo(State.PLAYING);
+					this.server.transitionTo(State.ITEM_PULL);
 					break;
 				}
 
 				this.server.transitionTo(State.POSTGAME);
 
-				break;
-			case ActionMessage.BACK_TO_LOBBY:
-				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
-
-				this.server.softReset();
-
-				this.server.broadcastSync();
 				break;
 		}
 	}

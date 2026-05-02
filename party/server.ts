@@ -7,6 +7,8 @@ import {
 	ServerMessage,
 	ClientMessageSchema,
 	TriviaData,
+	ActionMessage,
+	Player,
 } from '../src/lib/shared/schema';
 import { corsHeaders } from './CORS';
 import { nanoid } from 'nanoid';
@@ -16,6 +18,8 @@ import { PlayingState } from './states/PlayingState';
 import { PostgameState } from './states/PostgameState';
 import randomName from '@scaleway/random-name';
 import { EvaluationState } from './states/EvaluationState';
+import { type ItemType } from '../src/lib/shared/items';
+import { ItemPullState } from './states/ItemPullState';
 
 export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {
@@ -23,6 +27,8 @@ export default class Server implements Party.Server {
 		this.adminSecret = '';
 		this.transitionTo(this.gameState.state);
 		this.playerAnswers = new Map();
+		this.playerItems = new Map();
+		this.activeItems = new Map();
 	}
 
 	gameState: GameState;
@@ -30,6 +36,8 @@ export default class Server implements Party.Server {
 	triviaData: TriviaData | undefined;
 	stateHandler!: GameStateHandler;
 	playerAnswers: Map<string, { index: number; answer: string; timeDelta: number }>; // Which player answered what
+	playerItems: Map<string, { itemType: ItemType }[]>; // Which player holds which items
+	activeItems: Map<string, { equipped: ItemType; hitBy: { item: ItemType; origin: Player }[] }>; // Players item state for the current round
 
 	async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext): Promise<void> {
 		const created = await this.room.storage.get<boolean>('created');
@@ -79,6 +87,7 @@ export default class Server implements Party.Server {
 
 		connection.send(JSON.stringify(sync));
 		this.room.broadcast(JSON.stringify(playerUpdate), [connection.id]);
+		this.syncInventory(connection);
 	}
 
 	async onClose(connection: Party.Connection): Promise<void> {
@@ -144,6 +153,15 @@ export default class Server implements Party.Server {
 		try {
 			const rawData = JSON.parse(message);
 			const parsedMessage = ClientMessageSchema.parse(rawData);
+
+			// Make returning to lobby possible from any state
+			if (parsedMessage.action === ActionMessage.BACK_TO_LOBBY) {
+				if (this.isSenderAdmin(sender, parsedMessage.adminSecret)) {
+					this.softReset();
+
+					this.broadcastSync();
+				}
+			}
 
 			this.stateHandler.onMessage(parsedMessage, sender);
 		} catch (e) {
@@ -218,6 +236,8 @@ export default class Server implements Party.Server {
 
 		this.triviaData = undefined;
 		this.playerAnswers = new Map();
+		this.playerItems = new Map();
+		this.activeItems = new Map();
 
 		this.gameState = resetState;
 	}
@@ -239,6 +259,9 @@ export default class Server implements Party.Server {
 		switch (newState) {
 			case State.LOBBY:
 				this.stateHandler = new LobbyState(this);
+				break;
+			case State.ITEM_PULL:
+				this.stateHandler = new ItemPullState(this);
 				break;
 			case State.PLAYING:
 				this.stateHandler = new PlayingState(this);
@@ -273,5 +296,14 @@ export default class Server implements Party.Server {
 
 	public getCurrentTriviaData() {
 		return this.triviaData?.results[this.gameState.currentRound];
+	}
+
+	public syncInventory(conn: Party.Connection) {
+		const inventorySync: ServerMessage = {
+			type: MessageType.INVENTORY_SYNC,
+			inventory: this.playerItems.get(conn.id) ?? [],
+		};
+
+		conn.send(JSON.stringify(inventorySync));
 	}
 }

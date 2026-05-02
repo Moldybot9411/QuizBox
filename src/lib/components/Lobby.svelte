@@ -25,8 +25,6 @@
 
 	let isLoading = $state(false);
 
-	$inspect(triviaData);
-
 	$effect(() => {
 		if (numRounds > MAX_ROUNDS) {
 			numRounds = MAX_ROUNDS;
