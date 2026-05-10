@@ -58,14 +58,14 @@
 	{/if}
 
 	{#if chestOpen}
-		<img src={resolve('/chest_open.png')} alt="Closed Open" class="size-80" />
+		<img src={resolve('/chest_open.svg')} alt="Chest Open" class="size-80" />
 	{:else}
 		{#if inventoryFull}
 			<Card elevation="high" class="bg-surface-error text-2xl font-bold">Inventory Full</Card>
 		{/if}
 		<div class="relative size-80">
 			<img
-				src={resolve('/chest_closed.png')}
+				src={resolve('/chest_closed.svg')}
 				alt="Closed Chest"
 				class="absolute top-0 left-0 size-80" />
 			{#if inventoryFull}
