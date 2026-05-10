@@ -5,6 +5,8 @@ import { ItemType } from './items';
 export enum State {
 	LOBBY,
 	ITEM_PULL,
+	ITEM_CHOOSE,
+	ITEM_DISPLAY,
 	PLAYING,
 	EVALUATION,
 	POSTGAME,
@@ -38,6 +40,8 @@ export enum ActionMessage {
 	NEXT_ROUND,
 	PULL_STATE_PLAYER_READY,
 	PULL_STATE_CONTINUE,
+	ITEM_CHOOSE_CONTINUE,
+	ITEM_DISPLAY_CONTINUE,
 }
 
 export const GameStateSchema = z.object({
@@ -238,8 +242,10 @@ const SubmitAnswerActionMessage = z.object({
 
 const NextRoundActionMessage = z.object({
 	action: z.literal(ActionMessage.NEXT_ROUND),
+	adminSecret: z.string(),
 });
 
+// ====== Item Pull State ======
 const ChestOpenedActionMessage = z.object({
 	action: z.literal(ActionMessage.PULL_STATE_PLAYER_READY),
 });
@@ -248,6 +254,21 @@ const PullStateContinueActionMessage = z.object({
 	action: z.literal(ActionMessage.PULL_STATE_CONTINUE),
 	adminSecret: z.string(),
 });
+// ============
+
+// ====== Item Choose State ======
+const ItemChooseContinueActionMessage = z.object({
+	action: z.literal(ActionMessage.ITEM_CHOOSE_CONTINUE),
+	adminSecret: z.string(),
+});
+// ============
+
+// ====== Item Display State ======
+const ItemDisplayContinueActionMessage = z.object({
+	action: z.literal(ActionMessage.ITEM_DISPLAY_CONTINUE),
+	adminSecret: z.string(),
+});
+// ============
 
 export const ClientMessageSchema = z.discriminatedUnion('action', [
 	StartGameActionMessage,
@@ -259,6 +280,8 @@ export const ClientMessageSchema = z.discriminatedUnion('action', [
 	NextRoundActionMessage,
 	ChestOpenedActionMessage,
 	PullStateContinueActionMessage,
+	ItemChooseContinueActionMessage,
+	ItemDisplayContinueActionMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

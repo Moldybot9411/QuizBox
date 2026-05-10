@@ -11,6 +11,7 @@ import {
 import {
 	CORRECT_ANSWER_SCORE_MAX,
 	CORRECT_ANSWER_SCORE_MIN,
+	ITEMS_AFTER_ROUND,
 	ROUND_DURATION,
 } from '../../src/lib/shared/gameSettings';
 
@@ -57,16 +58,26 @@ export class EvaluationState implements GameStateHandler {
 	onMessage(message: ClientMessage, sender: Connection): void {
 		switch (message.action) {
 			case ActionMessage.NEXT_ROUND:
+				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
+
 				const numRounds = this.server.triviaData?.results.length ?? 0;
 
-				if (this.server.gameState.currentRound < numRounds - 1) {
-					this.server.gameState.currentRound++;
+				if (this.server.gameState.currentRound === numRounds - 1) {
+					this.server.transitionTo(State.POSTGAME);
+					break;
+				}
 
+				this.server.gameState.currentRound++;
+
+				if (
+					this.server.gameState.currentRound % ITEMS_AFTER_ROUND === 0 ||
+					this.server.gameState.currentRound - 1 === numRounds - 1
+				) {
 					this.server.transitionTo(State.ITEM_PULL);
 					break;
 				}
 
-				this.server.transitionTo(State.POSTGAME);
+				this.server.transitionTo(State.ITEM_CHOOSE);
 
 				break;
 		}

@@ -118,7 +118,7 @@ export class ItemPullState implements GameStateHandler {
 				if (!this.server.isSenderAdmin(sender, message.adminSecret)) break;
 				if (this.readyPlayers.length !== this.server.gameState.playerCount) break;
 
-				this.server.transitionTo(State.PLAYING);
+				this.server.transitionTo(State.ITEM_CHOOSE);
 				break;
 		}
 	}

@@ -33,7 +33,7 @@
 		elevation === 'low' && 'elevation-low highlight',
 		elevation === 'medium' && 'elevation-medium highlight',
 		elevation === 'high' && 'elevation-high highlight',
-		variant === 'primary' && 'bg-primary text-text hover:bg-primary-hover',
+		variant === 'primary' && 'bg-primary text-text-invert hover:bg-primary-hover',
 		variant === 'secondary' &&
 			'border border-border bg-secondary p-2 text-text hover:bg-secondary-hover',
 		variant === 'tertiary' &&

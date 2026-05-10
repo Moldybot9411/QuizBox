@@ -1,9 +1,11 @@
 <script lang="ts">
-	import Evaluation from '$lib/components/Evaluation.svelte';
-	import ItemPull from '$lib/components/ItemPull.svelte';
-	import Lobby from '$lib/components/Lobby.svelte';
-	import Playing from '$lib/components/Playing.svelte';
-	import PostGame from '$lib/components/PostGame.svelte';
+	import EvaluationState from '$lib/components/EvaluationState.svelte';
+	import ItemChooseState from '$lib/components/ItemChooseState.svelte';
+	import ItemDisplayState from '$lib/components/ItemDisplayState.svelte';
+	import ItemPullState from '$lib/components/ItemPullState.svelte';
+	import LobbyState from '$lib/components/LobbyState.svelte';
+	import PlayingState from '$lib/components/PlayingState.svelte';
+	import PostGameState from '$lib/components/PostGameState.svelte';
 	import { gameData, initGame } from '$lib/gameStore.svelte';
 	import { State } from '$lib/shared/schema.js';
 	import { onMount } from 'svelte';
@@ -20,13 +22,17 @@
 </svelte:head>
 
 {#if gameData.state.state === State.LOBBY}
-	<Lobby roomId={params.roomId} />
+	<LobbyState roomId={params.roomId} />
 {:else if gameData.state.state === State.ITEM_PULL}
-	<ItemPull />
+	<ItemPullState />
+{:else if gameData.state.state === State.ITEM_CHOOSE}
+	<ItemChooseState />
+{:else if gameData.state.state === State.ITEM_DISPLAY}
+	<ItemDisplayState />
 {:else if gameData.state.state === State.PLAYING}
-	<Playing />
+	<PlayingState />
 {:else if gameData.state.state === State.EVALUATION}
-	<Evaluation />
+	<EvaluationState />
 {:else if gameData.state.state === State.POSTGAME}
-	<PostGame />
+	<PostGameState />
 {/if}

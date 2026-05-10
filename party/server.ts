@@ -20,6 +20,8 @@ import randomName from '@scaleway/random-name';
 import { EvaluationState } from './states/EvaluationState';
 import { type ItemType } from '../src/lib/shared/items';
 import { ItemPullState } from './states/ItemPullState';
+import { ItemChooseState } from './states/ItemChooseState';
+import { ItemDisplayState } from './states/ItemDisplayState';
 
 export default class Server implements Party.Server {
 	constructor(readonly room: Party.Room) {
@@ -262,6 +264,12 @@ export default class Server implements Party.Server {
 				break;
 			case State.ITEM_PULL:
 				this.stateHandler = new ItemPullState(this);
+				break;
+			case State.ITEM_CHOOSE:
+				this.stateHandler = new ItemChooseState(this);
+				break;
+			case State.ITEM_DISPLAY:
+				this.stateHandler = new ItemDisplayState(this);
 				break;
 			case State.PLAYING:
 				this.stateHandler = new PlayingState(this);

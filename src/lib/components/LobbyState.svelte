@@ -3,7 +3,20 @@
 	import { onMount } from 'svelte';
 	import Card from './Card.svelte';
 	import { TriviaSchema, type TriviaData } from '$lib/shared/schema';
-	import { Clipboard, Link, LoaderCircle, User } from '@lucide/svelte';
+	import {
+		BadgeQuestionMark,
+		BookMarked,
+		ChartNoAxesColumnIncreasing,
+		Clipboard,
+		Gamepad,
+		Link,
+		LoaderCircle,
+		Play,
+		SquareStack,
+		Swords,
+		Trophy,
+		User,
+	} from '@lucide/svelte';
 	import PlayerCard from './PlayerCard.svelte';
 	import { addToast } from './Toast.svelte';
 	import Button from './Button.svelte';
@@ -20,6 +33,9 @@
 	let category = $state('any');
 	let difficulty = $state('any');
 	let questionType = $state('any');
+
+	$inspect(categories);
+	$inspect(category);
 
 	let triviaData: TriviaData | undefined = $state(undefined);
 
@@ -182,53 +198,126 @@
 
 {#if gameData.isAdmin}
 	<Card class="mb-4 flex flex-col gap-6">
-		<label class="flex max-w-100 flex-col gap-1">
-			<span class="text-lg font-bold text-text-muted"> Number of Rounds </span>
+		<span class="flex items-center gap-2 text-xl font-bold">
+			<Gamepad />
+			<span>Game Settings</span>
+		</span>
 
-			<input
-				bind:value={numRounds}
-				type="number"
-				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text" />
-		</label>
+		<hr class="border-border" />
+		<div class="flex w-full flex-col gap-4 md:flex-row">
+			<div class="flex w-full flex-3 flex-col gap-2">
+				<Card class="flex items-center gap-8" elevation="low">
+					<SquareStack size={32} />
 
-		<label class="flex max-w-100 flex-col gap-1">
-			<span class="text-lg font-bold text-text-muted"> Category </span>
+					<label class="w-full">
+						<span class="text-lg font-bold text-text-muted"> Number of Rounds </span> <br />
 
-			<select
-				bind:value={category}
-				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
-				<option value="any">Any Category</option>
-				{#each categories as category}
-					<option value={category.id}>{category.name}</option>
-				{/each}
-			</select>
-		</label>
+						<input
+							bind:value={numRounds}
+							type="number"
+							class="w-full rounded-md border border-border bg-surface-light p-2 font-bold text-text" />
+					</label>
+				</Card>
 
-		<label class="flex max-w-100 flex-col gap-1">
-			<span class="text-lg font-bold text-text-muted"> Difficulty </span>
+				<Card class="flex items-center gap-8" elevation="low">
+					<BookMarked size={32} />
 
-			<select
-				bind:value={difficulty}
-				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
-				<option value="any">Any Difficulty</option>
-				<option value="easy">Easy</option>
-				<option value="medium">Medium</option>
-				<option value="hard">Hard</option>
-			</select>
-		</label>
+					<label class="w-full">
+						<span class="text-lg font-bold text-text-muted"> Category </span> <br />
 
-		<label class="flex max-w-100 flex-col gap-1">
-			<span class="text-lg font-bold text-text-muted"> Question Type </span>
+						<select
+							bind:value={category}
+							class="w-full rounded-md border border-border bg-surface-light p-2 font-bold text-text">
+							<option value="any">Any Category</option>
+							{#each categories as category}
+								<option value={category.id}>{category.name}</option>
+							{/each}
+						</select>
+					</label>
+				</Card>
 
-			<select
-				bind:value={questionType}
-				class="rounded-md border border-border bg-surface-light p-2 font-bold text-text">
-				<option value="any">Any Type</option>
-				<option value="boolean">True / False</option>
-				<option value="multiple">Multiple Choice</option>
-			</select>
-		</label>
+				<Card class="flex items-center gap-8" elevation="low">
+					<ChartNoAxesColumnIncreasing size={32} />
+
+					<label class="w-full">
+						<span class="text-lg font-bold text-text-muted"> Difficulty </span> <br />
+
+						<select
+							bind:value={difficulty}
+							class="w-full rounded-md border border-border bg-surface-light p-2 font-bold text-text">
+							<option value="any">Any Difficulty</option>
+							<option value="easy">Easy</option>
+							<option value="medium">Medium</option>
+							<option value="hard">Hard</option>
+						</select>
+					</label>
+				</Card>
+
+				<Card class="flex items-center gap-8" elevation="low">
+					<BadgeQuestionMark size={32} />
+
+					<label class="w-full">
+						<span class="text-lg font-bold text-text-muted"> Question Type </span> <br />
+
+						<select
+							bind:value={questionType}
+							class="w-full rounded-md border border-border bg-surface-light p-2 font-bold text-text">
+							<option value="any">Any Type</option>
+							<option value="boolean">True / False</option>
+							<option value="multiple">Multiple Choice</option>
+						</select>
+					</label>
+				</Card>
+			</div>
+
+			<Card class="flex flex-1 flex-col gap-2" elevation="high">
+				<span class="text-xl font-bold">Game Preview</span>
+				<hr class="border-border" />
+
+				<Swords size={64} class="mx-auto my-4 text-surface-error" />
+
+				<div class="mx-auto flex flex-col gap-4 text-lg font-bold">
+					<span class="flex items-center gap-2">
+						<SquareStack size={24} />
+
+						{numRounds} Rounds
+					</span>
+
+					<span class="flex items-center gap-2">
+						<BookMarked size={24} />
+
+						{#if category === 'any'}
+							Any Category
+						{:else}
+							{categories.find((el) => el.id.toString() == category)?.name}
+						{/if}
+					</span>
+
+					<span class="flex items-center gap-2">
+						<ChartNoAxesColumnIncreasing size={24} />
+
+						{#if difficulty === 'any'}
+							Any Difficulty
+						{:else}
+							{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+						{/if}
+					</span>
+
+					<span class="flex items-center gap-2">
+						<BadgeQuestionMark size={24} />
+						{#if questionType === 'any'}
+							Any Type
+						{:else if questionType === 'boolean'}
+							True / False
+						{:else if questionType === 'multiple'}
+							Multiple Choice
+						{/if}
+					</span>
+				</div>
+			</Card>
+		</div>
 	</Card>
+
 	<div class="flex w-full flex-col items-center gap-2">
 		<Button
 			onclick={async () => {
@@ -243,6 +332,8 @@
 			disabled={isLoading || gameData.state.playerCount < 2}>
 			{#if isLoading}
 				<LoaderCircle class="animate-spin" size={24} />
+			{:else}
+				<Play size={24} />
 			{/if}
 			Start Game
 		</Button>

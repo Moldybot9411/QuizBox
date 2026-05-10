@@ -209,6 +209,7 @@ export function submitAnswer(index: number) {
 export function nextRound() {
 	const obj: ClientMessage = {
 		action: ActionMessage.NEXT_ROUND,
+		adminSecret: gameData.adminSecret ?? '',
 	};
 
 	gameData.socket?.send(JSON.stringify(obj));
@@ -225,6 +226,24 @@ export function sendOpenChest() {
 export function sendPullStateContinue() {
 	const obj: ClientMessage = {
 		action: ActionMessage.PULL_STATE_CONTINUE,
+		adminSecret: gameData.adminSecret ?? '',
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function sendItemChooseContinue() {
+	const obj: ClientMessage = {
+		action: ActionMessage.ITEM_CHOOSE_CONTINUE,
+		adminSecret: gameData.adminSecret ?? '',
+	};
+
+	gameData.socket?.send(JSON.stringify(obj));
+}
+
+export function sendItemDisplayContinue() {
+	const obj: ClientMessage = {
+		action: ActionMessage.ITEM_DISPLAY_CONTINUE,
 		adminSecret: gameData.adminSecret ?? '',
 	};
 
